@@ -23,6 +23,11 @@ strong resume is usually packaging & information architecture, not the person's 
   it taints the whole resume. A critic can approve an overclaim; a human must still catch it.
 - **Capability lives in bullets, not in the Skills list.** Concepts (RAG, multi-agent,
   evals) get demonstrated in Experience/Projects; the Skills line is concrete tools only.
+- **Dual-legible bullets.** The first pass over a resume is fast and often by a generalist
+  screener working from a checklist — not the engineer who reads it later. Lead each bullet with a
+  plain-English outcome (what changed, graded in the fast scan); keep the specific mechanism + stack
+  as the tail (engineer credibility + ATS keywords). This is NOT "write down to non-technical people";
+  it's respecting a fast, cross-audience first read. Never lead with the stack — it fails both readers.
 - **Trailer, not documentation.** Show the protagonist, a few great frames, then stop.
   Leave depth for the interview. Reduce what you show at once — that reads as confidence.
 - **Discovery, not judgment.** Frame gaps as "here's what's not landing yet", never as a
@@ -35,7 +40,12 @@ strong resume is usually packaging & information architecture, not the person's 
 Establish, before writing anything:
 - **Lane** — what role family (e.g. LLM/Agent engineer vs Applied ML vs fullstack). Pick
   one; it drives every emphasis. Don't cosplay a lane the person doesn't want.
-- **Targeting & constraints** — company tiers, location, work authorization, level, comp.
+- **Targeting & constraints** — company tiers, location, level, comp, and **work authorization**.
+  For international candidates, work-auth is a real screen that fires *before* bullet quality
+  matters (disclose-vs-omit, dated phrasing, the portal "future sponsorship" trap) — decide it
+  early; see `references/work-authorization.md`. Also weigh **sourcing**: per application a referral
+  is worth ~40 cold applies, so resume-perfection pays off most on the referral channel — route
+  effort accordingly (see `references/market-fit.md`).
 - **The thesis / throughline** — the one-sentence story a recruiter should remember. A
   narrative arc (a throughline tying the person's background to what they build now) beats a
   pile of projects. Surface its root (a formative prior field, a founding story) rather than burying it.
@@ -56,18 +66,23 @@ any real numbers. Write bullets FROM this, never from the README top line.
 - See `references/resume-craft.md` for templates, ATS parsing, self-employment/founder
   entry format, skills-section rules.
 
-### 4. Section order (new-grad→early-career, experience-strong)
-Skills → Experience → Projects → Awards & Publications → Education. Put the strongest,
-present-signal, OSS/independent work FIRST (AI labs explicitly say so).
+### 4. Section order (branch by seniority — see `references/resume-craft.md §3b`)
+Experience-strong / founder / shipped-independent-work: Skills → Experience → Projects → Awards &
+Publications → Education. Thin work history (new-grad): float Education & Projects UP, right after
+Skills. Either way, put the strongest, present-signal, OSS/independent work FIRST (AI labs explicitly say so).
 
 ### 5. Write each bullet with the writer+critic loop
 Run a **Workflow** (writer→critic, ~4 rounds, parallel across bullets). Each bullet must
 pass: fluent · keeps required metrics + tech keywords · keeps essence · **XYZ form**
-(X result / Y metric / Z method) · one line (≤~100 visible chars) · varied lead verb
-(don't repeat across bullets) · recruiter-skimmable AND engineer-impressive (the
-"sandwich": business payload front, mechanism tail) · **defensible**. See the reusable
-script pattern in `references/writer-critic-workflow.md`. **Always human-review the
-critic's approvals for integrity** — the critic lacks full ground truth.
+(X result / Y metric / Z method) · one line (≤~100 visible chars) · specific lead verb
+(reuse is fine — flag *weak* verbs, not repetition) · **dual-legible** (plain-English impact
+front, mechanism tail) · **defensible**. Build the critic right — it's where loops fail:
+**negative criteria** (demerits for jargon-pile-up / buried impact / stack-first / round-number-
+no-mechanism) are the anti-sycophancy fix; structured `present/missing/violations` enumeration
+*before* a numeric score; derive pass/fail in code, not an LLM boolean; add an explicit
+**anti-AI-tell pass** (banned-word list + vary cadence — a same-model loop produces the exact
+uniform-rhythm tells recruiters catch). See `references/writer-critic-workflow.md`. **Always
+human-review the critic's approvals for integrity** — the critic lacks full ground truth.
 
 ### 6. Bullet craft (the rules the critic enforces)
 - XYZ + the "so what?" ladder (task→output→outcome→business); stop at the highest
@@ -86,18 +101,30 @@ A single line with core competencies **bolded** as an eye-anchor works well and 
 category-label disputes. 8–15 items; mirror JD terms at tailoring time, keep master generic.
 
 ### 8. Per-JD tailoring (separate later step)
-The master is generic. For each application, swap in the JD's exact keywords, reorder to hit
-the target level's headline competency, and re-check one page. (A dedicated tailoring
-command/prompt can drive this.)
+The master is generic. For each application, swap in the JD's exact keywords (the employer's wording),
+use the 3-location placement rule, target 65-80% overlap (don't stuff — modern ATS penalize it),
+reorder to hit the target level's headline competency, and re-check one page. A paste-able tailoring
+prompt + the full method are in `references/jd-tailoring.md`.
+
+> **See it end-to-end:** `references/worked-example.md` traces one bullet through the whole loop on a
+> fully-synthetic candidate — writer draft → critic (present/missing/violations/score) → ship-ready,
+> plus the cross-bullet AI-tell review. Read it to see the negative criteria and dual-legibility in action.
 
 ## Guardrails checklist (run before "done")
-one page · single column · standard headings · every bullet XYZ + defensible · ≥1 eval
-bullet for AI roles · no unbuilt work / unused tools · verbs varied · concepts in bullets
-not Skills · thesis legible in <10s · strongest/OSS work first.
+one page (early/mid-career) · single column · standard headings · every bullet XYZ + defensible ·
+**every bullet dual-legible (impact up front, no bullet 100% jargon)** · ≥1 eval bullet for AI
+roles · no unbuilt work / unused tools · specific (not weak) verbs · **no AI-tells (varied cadence,
+no banned words, odd true numbers not clean round ones)** · concepts in bullets not Skills · thesis
+legible in <10s · strongest/OSS work first · **work-auth strategy decided (if international)**.
 
-## References
-- `references/principles.md` — the rubric + 10-point bullet checklist + verb bank.
-- `references/resume-craft.md` — templates, ATS parsing, formatting, skills section.
-- `references/bullet-writing.md` — elite bullet techniques (ladder, sandwich, AI-lab signals).
-- `references/writer-critic-workflow.md` — the reusable writer+critic Workflow script.
-- (Populate references/ by copying from the project's `docs/research/*` — kept in sync there.)
+## References (each carries sourced findings + confidence tags; 2026 web research)
+- `references/principles.md` — the rubric + 10-point bullet checklist + verb bank + editorial axes.
+- `references/resume-craft.md` — templates, ATS reality (parsing-corruption not keyword-robot), section
+  order by seniority, formatting, skills section.
+- `references/bullet-writing.md` — elite bullet techniques (ladder, dual-legible sandwich, AI-lab signals).
+- `references/writer-critic-workflow.md` — the reusable writer+critic Workflow + critic design
+  (negative criteria, anti-AI-tells) + the accompanying `.js` reference script.
+- `references/market-fit.md` — the market-fit research METHOD + 2026 title/tier/signal/referral findings.
+- `references/work-authorization.md` — F-1/OPT/STEM-OPT/sponsorship strategy (disclose-vs-omit, the portal trap).
+- `references/jd-tailoring.md` — per-JD tailoring method (3-location placement, overlap target) + paste-able prompt.
+- `references/worked-example.md` — one bullet start-to-finish on a synthetic candidate (the loop, made concrete).

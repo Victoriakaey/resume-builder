@@ -1,8 +1,8 @@
-# Resume Craft — consolidated research (formatting · ATS · templates · skills)
+# Resume Craft — formatting · ATS · templates · skills
 
-Distilled from web-research passes run 2026-07-14. Companion to `../research.md`
-(market fit + AI-resume craft) and `../principles.md` (rubric + bullet checklist).
-This file is knowledge-base material for the future resume-writing **skill**.
+The craft layer of the skill's knowledge base (2026 web research, sourced below). Companion to
+`principles.md` (rubric + bullet checklist), `bullet-writing.md` (elite techniques), and
+`market-fit.md` (which roles/companies fit a candidate).
 
 ---
 
@@ -29,6 +29,21 @@ This file is knowledge-base material for the future resume-writing **skill**.
   visible chars (exclude LaTeX markup) for a one-line bullet; words don't break, so leave margin.
 
 ## 2. Formatting & ATS parsing (experience entries)
+
+**Reality check first (2026): the "keyword robot that auto-rejects your resume" is largely a myth
+for the ATS tech companies actually use.** Greenhouse does not algorithmically score or auto-reject
+(its CEO says so); Lever is human-first. The genuine auto-rejects come from **knockout/screening
+questions** in the portal (work authorization, location, min-experience), triggered by *your
+answers*, not a secret reading of your resume. Workday/Taleo are stricter parsers but still
+auto-reject via those questions, not keyword bots. So:
+- **The real failure mode is PARSING CORRUPTION, not rejection.** A multi-column or table layout
+  makes the parser attach Company A's title to Company B, or shift your dates a year — and then you
+  stop surfacing in recruiter searches. You're not rejected; you're garbled and invisible.
+- **Keywords matter for DISCOVERABILITY** (recruiter Boolean search over parsed fields), not as a
+  pass/fail gate. Once a human opens it, "they see your resume exactly as you submitted it."
+- Ignore the inflated "75% auto-rejected by ATS" / "must use these 3 ATS fonts" SEO folklore. Any
+  standard embedded (non-decorative) font parses; a text-based PDF parses fine except the pickiest
+  Taleo configs. Avoid *decorative/symbol* fonts and icon glyphs — that's the real rule.
 
 - ATS parses the **whole document** into fields (Title, Company, Dates, Location, Bullets) by
   matching **standard heading keywords**. Skills section is a "concentrated lookup table" but
@@ -71,27 +86,48 @@ This file is knowledge-base material for the future resume-writing **skill**.
   ragas/DeepEval/promptfoo/W&B. SHOW-in-bullets (don't list): RAG, multi-agent, prompt-engineering,
   fine-tuning, function-calling/tool-use, evals.
 
+## 3b. Section order & length (branch by seniority)
+- **Standard headings only** ("Skills" / "Experience" or "Work Experience" / "Projects" /
+  "Education") — creative headings ("My Journey") parse as uncategorized. Non-negotiable.
+- **Early-career / new-grad (thin work history):** Skills → **Education & Projects float UP** →
+  Experience. Put whichever of Education/Projects is strongest right after Skills; projects are the
+  primary substitute for experience — **link GitHub/live per project** (verifiable = load-bearing for juniors).
+- **Experience-strong (real industry / founder / shipped independent work):** Skills → **Experience
+  first** → Projects → Education (Education sinks). Lead with present-signal, OSS/independent work —
+  AI labs (Anthropic, verbatim) explicitly say to put independent research / OSS / a blog post at the TOP.
+  → This is the branch a founder/independent-builder profile takes even when early-career by years.
+- **One page:** real and near-mandatory for early/mid-career (new-grad reviewers often stop at page 1);
+  flex to two pages only for senior/staff with genuinely substantive content, never as padding. Min 10pt
+  for human readability. Don't fight fragile `\vspace` hacks to force one page — compress content instead.
+
 ## 4. Bullet writing — basics (elite techniques in `bullet-writing.md`)
 
-- **XYZ (Google/Bock)**: "Accomplished **X** (result) as measured by **Y** (a number) by doing **Z**
-  (method)." All three present, order flexible, front-load the metric when strong.
+- **XYZ (Laszlo Bock, ex-Google — primary source)**: "Accomplished **X** (result) as measured by
+  **Y** (a number) by doing **Z** (method)." All three present, order flexible, front-load the metric when strong.
 - Verb + object + metric + method; **one idea per bullet** (a stacked business consequence is OK);
-  ≤20 words SWE / ≤30 AI; strong past-tense verb; **don't repeat a verb >2×**.
+  ≤20 words SWE / ≤30 AI; strong SPECIFIC past-tense verb (reuse is fine — flag weak verbs, not repeats).
 - **Keep every number**; when no hard number, substitute scope/breadth/comparative (X→Y)/frequency.
-- **AI-specific**: name specific models (Claude Sonnet, GPT-4.1) — top resumes do it 3.4×; lead with
+- **AI-specific**: name specific models (Claude Sonnet, GPT-4.1), not bare "LLM"; lead with
   production metrics (p95, QPS, **cost-per-call**) > model metrics > framework fluency; ship ≥1 eval
-  bullet (72% of AI resumes have none = 2026 disqualifier); agentic+reliability = top differentiator.
+  bullet (a differentiator — only ~52% of teams run offline evals, but screeners weight it);
+  agentic+reliability = top differentiator, observability = table stakes.
 - **Ban**: responsible for / worked on / helped / leveraged / utilized. Cut filler + vague adjectives.
-- **10-point checklist** (in `../principles.md`): strong verb · your action · a number · impact-not-task
+- **10-point checklist** (in `principles.md`): strong verb · your action · a number · impact-not-task
   · method named · one idea · ≤20–30 words · no filler · AI: metric tied to business · defensible.
-- **Two-audience**: bullet must be recruiter-skimmable (≥1 plain value signal) AND engineer-impressive
-  (the hard mechanism). Don't make it 100% jargon.
+- **Two-audience (dual-legible)**: plain-English impact up front for the fast generalist first read,
+  specific mechanism as the tail for the engineer + ATS. Not "dumb it down" — see `bullet-writing.md`
+  → two-audience problem, and `principles.md` rule 5b.
+- **Work authorization** is its own dimension (disclose-vs-omit, dated phrasing, the portal
+  "future sponsorship" trap) — see `work-authorization.md`.
 
-## 5. Sources (strongest, for the skill's reference list)
-- r/EngineeringResumes wiki + checklist (community rubric + free reviews) — reddit.com/r/EngineeringResumes/wiki
-- Google XYZ — sweresume.app/articles/xyz-method-resume · inc.com (Bock)
-- AI-engineer playbook — resumeoptimizerpro.com/blog/ai-engineer-resume-examples · resumeadapter.com/blog/ai-engineer-resume-keywords
-- ATS parsing — jobscan.co/blog/resume-tables-columns-ats · atscore.ai/blog/resume-skills-section-ats
-- Templates — github.com/jakegut/resume · github.com/r-engineeringresumes/resume-templates · docs.rendercv.com
-- Anti-fabrication resume-agent — github.com/ARPeeketi/claude-resume-kit (provenance tags, verb discipline, 5-reader critique)
-- Bullet craft — resumly.ai (4-C, ML metrics) · resumeworded.com (quantify, verbs)
+## 5. Sources (with confidence)
+- **HIGH / primary:** github.com/r-engineeringresumes/resume-templates (live template — XCharter,
+  single-col) · Greenhouse-no-algo-scoring via jobscan.co/blog/greenhouse-ats-what-job-seekers-need-to-know ·
+  blakecrosley.com/work/ats-insider (parsing-corruption mechanism) · inc.com/LinkedIn (Bock XYZ).
+- **MED:** techinterview.org (one-page by seniority) · apply-mate.com/blog/workday-taleo-greenhouse-ats
+  (knockout-question auto-reject) · resumegenius/tealhq (self-employment formatting) · docs.rendercv.com.
+- **Community rubric:** r/EngineeringResumes wiki + checklist (reddit.com/r/EngineeringResumes/wiki —
+  fetch often blocked; corroborate via the community LaTeX template).
+- **Mine, don't cite as fact:** resumeoptimizerpro / resumeadapter (AI-engineer playbooks) · resumly.ai ·
+  resumeworded. **Related tool:** github.com/ARPeeketi/claude-resume-kit (provenance tags, verb
+  discipline, banned-word list, 5-reader critique) — aligns with the integrity bar, worth mining.

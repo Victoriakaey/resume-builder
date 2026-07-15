@@ -1,8 +1,10 @@
 # Resume Principles — the rubric
 
-Distilled from (a) a benchmark resume that landed OpenAI/Anthropic interviews,
-and (b) a strategy review. Framed as rules for *this* resume. Scannable rule +
-one-line why. Web research (pending) will augment this.
+Distilled from (a) a benchmark resume that landed OpenAI/Anthropic interviews, (b) a strategy
+review, and (c) 2026 web research now integrated with sources + confidence (see `## Sources` and
+the sourced criteria in `writer-critic-workflow.md`). Scannable rule + one-line why.
+**Confidence discipline:** where a widely-repeated number is content-mill and unsourced, it's
+replaced or hedged below — say "studies suggest", don't cite fake precision.
 
 ## Hierarchy & story
 1. **Trailer, not documentation.** Show protagonist → why → a few great frames →
@@ -12,17 +14,29 @@ one-line why. Web research (pending) will augment this.
 3. **Serve the thesis arc.** Order/phrase every section to make the throughline
    legible (see `strategy.md`). *Why: a story beats a pile; competitors have no thesis.*
 4. **Top-load identity.** First signal = "they build AI agents", not "they know React".
-   *Why: 5-second scan decides the fate.*
+   *Why: a fast first scan decides the fate.*
 
 ## Bullets
 5. **What → Why → How**, in that order. `Built X to improve Y using Z`.
    *Why: leading with "how" (tool soup) buries the point.*
+5b. **Dual-legible: lead with a plain-English outcome, keep the mechanism as the tail.** The first
+   pass over a resume is fast and often by a generalist screener working from a checklist — not the
+   engineer who'll read it later. So the *impact* clause (what changed, in words anyone can grade)
+   goes up front; the *mechanism* (specific tech, the hard part) is the tail that earns an engineer's
+   trust AND carries the ATS keywords. *Why: leading with the stack fails both readers on the first
+   pass — the screener can't evaluate it, the engineer isn't reading yet.* This is NOT "write down to
+   non-technical people" — it's respecting a fast, cross-audience first read. When a term must stay,
+   expand it once ("Energy Conservation Measures (ECMs)") so it's legible AND searchable.
+   *(Well-supported: hiring-side sources + Bock; see Sources.)*
 6. **Keep every number.** r≈0.54, 35%, 15%, 120ms/30% — never trim these.
-   *Why: quantified results are the single biggest edge over vague competitors.*
+   *Why: quantified results are the single biggest edge over vague competitors. (Numbers-beat-duties
+   is strong consensus; specific outperformance percentages floating online are mostly unsourced.)*
 7. **Cut adjectives, not metrics.** Kill "centrally orchestrated", "session-scoped",
    "structured API". *Why: adjectives read as padding; numbers read as proof.*
-8. **Strong past-tense verb, vary them.** Not five bullets all starting "Designed".
-   *Why: repetition signals low effort.*
+8. **Strong past-tense verb; prefer a SPECIFIC verb over a generic one.** "Migrated/Cut/Benchmarked"
+   over "Led/Handled/Worked on". Varying verbs across bullets is a nice polish, *but reuse is fine* —
+   flag a *weak/vague* verb, not mere repetition. *Why: the myth is "never repeat a verb"; the real
+   signal is verb specificity, not novelty (Forbes/TopResume debunk the no-repeat rule).*
 9. **Never list unbuilt work.** *Why: collapses in interview; costs integrity.*
 
 ## Sections
@@ -34,33 +48,44 @@ one-line why. Web research (pending) will augment this.
     after graduating" is a strong, cheap signal.*
 13. **Surface third-party validation.** Awards + publication, one line each, not buried.
     *Why: external proof outweighs self-description; don't hide it in comments.*
-14. **U.S. work-authorization / clearance up top when relevant.** *Why: instant
-    screening pass for eligibility-gated roles (esp. gov/defense-adjacent).*
+14. **U.S. work-authorization / clearance up top when relevant** — but as a *strategy
+    decision*, not a reflex; for international candidates it can help or hurt. *Why: instant
+    screening pass for eligibility-gated roles; but a mishandled visa line/portal answer screens
+    you out ahead of the resume read. See `work-authorization.md`.*
 
 ## Layout
-15. **One page, calm, whitespace.** *Why: dense reads as anxious; calm reads as confident.*
+15. **One page, calm, whitespace** (early/mid-career; senior may flex to two). *Why: dense reads
+    as anxious; calm reads as confident — and new-grad reviewers often stop at page 1.*
 16. **Don't fight vspace hacks.** Fragile 1-page fits break on one reflow.
-    *Why: maintenance tax + risk of ugly overflow.*
+    *Why: maintenance tax + risk of ugly overflow — compress content instead.*
 17. **Links that prove work** (GitHub, live demos). *Why: an engineer with no visible
-    code is a claim without evidence.*
+    code is a claim without evidence; for juniors, per-project links are load-bearing.*
 
-## AI-engineer specific (from 2026 research — see research.md §B)
-19. **Ship ≥1 eval bullet.** 72% of AI resumes have zero eval tooling; its absence
-    reads as "ships unevaluated features" = 2026 disqualifier. Name tool + outcome.
+## AI-engineer specific (from 2026 research — sourced below)
+19. **Ship ≥1 eval bullet.** Evals are a genuine differentiator, not a baseline: only ~52% of
+    production teams run offline evals (LangChain *State of Agent Engineering* 2025-26), yet
+    screeners over-weight them — a resume with no eval mention risks reading as "ships unevaluated
+    features." Frame it as an edge, not a universal. Name tool + outcome (ragas / LangSmith /
+    Braintrust / DeepEval / promptfoo / custom harness).
 20. **Name specific models/versions** (Claude Sonnet, GPT-4.1, Llama 3.3), never bare "LLM".
-    *Why: named models = current; generic = reads 2023. Top resumes do it 3.4× more.*
+    *Why: named models read current; generic "LLM" reads 2023.* (Directional; the exact
+    "top resumes do it Nx more" figures online are unsourced — don't cite them.)
 21. **Lead with production metrics** — p95 latency, QPS, **cost-per-call** > accuracy/F1 >
-    framework fluency. *Why: 2026 teams want shipped-to-real-users, not notebooks.*
-    (A per-day inference cost like \$0.04–0.10/day is a gold-tier metric — feature it.)
+    framework fluency. *Why: in 2026 the top production blocker teams report is quality/latency,
+    not cost, and demos read junior — they want shipped-to-real-users (LangChain survey; Meta's
+    stated "ship tools, not demos").* (A per-day inference cost like \$0.04–0.10/day is a strong concrete metric.)
 22. **Agentic + reliability is the differentiator** — tool calling, MCP, long-running
-    orchestration, retries/fallbacks/guardrails. *Why: it's the scarce, top signal.*
-23. **XYZ every bullet** — "X (as measured by Y) by doing Z"; pair a technical metric +
-    a business metric. *Why: the dominant, recruiter-trained standard.*
+    orchestration, retries/fallbacks/guardrails; **observability is table stakes** (94% of
+    production agent teams). *Why: it's the scarce, senior signal.*
+23. **XYZ every bullet** — "Accomplished X (as measured by Y) by doing Z"; pair a technical metric +
+    a business metric. *Why: the dominant, recruiter-trained standard — Laszlo Bock (ex-Google), verbatim.*
 24. **Single column, no tables/icons/multi-col, contact in body, full dates, mirror JD
-    keywords.** *Why: ATS parsers drop columns/headers/icons — a pretty resume that
-    doesn't parse never reaches a human.*
-25. **Vary voice — dodge AI-detectors.** Over-polished uniform prose trips GPTZero even
-    when honest. *Why: when an AI is drafting, keep the writer's own sentence rhythm + specific verbs.*
+    keywords.** *Why: the real ATS risk is PARSING CORRUPTION (columns/tables shuffle your
+    dates & titles), not a keyword robot auto-rejecting you — see `resume-craft.md §2`.*
+25. **Vary voice — dodge AI-tells.** A same-model write+critic loop produces uniform cadence + AI
+    vocabulary (delve/leverage/spearheaded/orchestrated) that recruiters spot in seconds. *Fix:
+    vary sentence length across bullets, kill the banned-word list, prefer odd true numbers over
+    clean round ones (see `writer-critic-workflow.md` → AI-tells).*
 
 ## Bullet checklist — run EVERY bullet through this (from bullet-craft research)
 `1. Strong past-tense verb  2. YOUR action (not team's)  3. A number (%, $, latency,
@@ -71,9 +96,13 @@ no vague adjectives / no tech-stack dump  9. AI: model metric tied to a business
 10. Defensible in interview.`
 
 - **XYZ:** "Accomplished X (measured by Y) by doing Z." All three present; order flexible
-  — front-load the metric when it's strong.
+  — front-load the metric when it's strong. (Laszlo Bock, ex-Google — primary source.)
 - **Ban verbs:** responsible for · worked on · involved in · helped · leveraged · utilized
-  (→ used/applied). Don't repeat a verb >2× in the whole resume.
+  (→ used/applied). Verb variety is a light polish, not a rule — reuse is fine; flag *weak* verbs,
+  not mere repetition.
+- **Editorial pass (Strunk & White):** omit needless words · active voice / clear owner · concrete >
+  abstract (show the action, don't assert the trait) · every word must survive "delete it — is
+  meaning lost?". These are the same axes real reviewer rubrics (NACE, Yale OCS, Humboldt) score on.
 - **No hard numbers?** substitute scope/breadth (5 hosts, 10k+ users), cost/day,
   comparative (850ms→210ms), frequency. A before/after pair IS a metric.
 - **Verb bank:** built/shipped: Built·Engineered·Shipped·Deployed·Integrated·Automated ·
@@ -84,6 +113,23 @@ no vague adjectives / no tech-stack dump  9. AI: model metric tied to a business
   bullet needs a problem stated. Don't visibly mix frameworks. STAR is too long → interviews.
 
 ## Root cause (meta)
-18. **"太怕别人不知道我有多强" is the disease.** Every over-stuff traces back to it.
-    *Fix: reduce what you show at once — not your strength. Make them remember you,
+18. **The disease: "I'm so afraid they won't know how strong I am."** Every over-stuff traces
+    back to it. *Fix: reduce what you show at once — not your strength. Make them remember you,
     then get curious. Less ≠ weaker. Less = confident.*
+
+## Sources (2026 research, with confidence)
+- **XYZ formula** — Laszlo Bock (ex-Google SVP People Ops), "My Personal Formula for a Winning
+  Resume" (LinkedIn, 2014) + *Work Rules!*. Primary. **HIGH.** The baseline-comparison rationale
+  ("is 12% a big deal? add ($1.2M)") is his own.
+- **Recruiter/HR is a fast generalist first reader; jargon density hurts; impact-first resolves it**
+  — vmock.com, webuildresumes.com (with before/after), systemdesign.one. **HIGH** (hiring-side consensus).
+- **Reviewer rubric axes** (impact/quantified · verb-first · relevant-first · clarity · ownership ·
+  scan-legibility · consistency · narrative) — NACE, Yale OCS, Humboldt, Hiration rubrics. **HIGH.**
+- **Editorial concision** — Strunk & White, *Elements of Style* (omit needless words; active voice). **HIGH.**
+- **AI signals** (evals a differentiator at ~52% adoption; observability table-stakes at 94%; quality/
+  latency the top blocker over cost) — LangChain *State of Agent Engineering* 2025-26. **HIGH.**
+- **Anthropic "put OSS/independent work at the TOP of your resume"** — anthropic.com/careers, primary. **HIGH.**
+- **Myths debunked** — no-repeat-verb & "always one page" (Forbes/TopResume, seniority-gated);
+  "6-second scan" is a 2018 7.4s small-n vendor study (Ladders), initial-skim only. **MED–HIGH.**
+- Unsourced content-mill figures ("Nx more", "40% more callbacks", "72% of AI resumes") are
+  intentionally NOT cited as fact here — the qualitative points stand on the sourced material above.
