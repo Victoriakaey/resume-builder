@@ -15,6 +15,10 @@ Lane-1 AI/Agent-engineer resume end-to-end. **Core belief: the gap between a wea
 strong resume is usually packaging & information architecture, not the person's ability.**
 
 ## Non-negotiables (read first)
+- **Read the dossier first (if it exists).** Before any work, if `docs/dossier.md` exists in the
+  user's resume repo, read it — it is this person's accumulated ground truth: project points in
+  their words, off-limits claims (guardrails), and register/process preferences. It **overrides
+  the generic defaults below.** Missing = a new user; you'll bootstrap it in step 1.
 - **Defensibility over modesty (not moral purity).** Push each bullet to the strongest rung
   you can talk about for 5 minutes — round up, frame hard, pick the best honest angle
   (under-selling is the more common failure). But don't cross into what unravels under
@@ -50,6 +54,14 @@ Establish, before writing anything:
   narrative arc (a throughline tying the person's background to what they build now) beats a
   pile of projects. Surface its root (a formative prior field, a founding story) rather than burying it.
 Record these in a `strategy.md`-style doc so they survive across sessions.
+
+**Dossier (read-first / bootstrap).** Read `docs/dossier.md` in the user's resume repo before
+re-asking anything: it already holds the lane, project points, guardrails, and preferences from
+prior sessions — do NOT re-derive what's there. Scan its **Guardrails** section before writing any
+bullet. If the file is ABSENT (new user), copy `references/dossier-template.md` into the user's repo
+as `docs/dossier.md` and fill it during this intake — the dossier grows from session 1, no manual
+setup. On read, if a `[durable]` entry looks contradicted by recent work, FLAG it ("this may be
+stale — still holds?") rather than silently applying or auto-retiring.
 
 ### 2. Deep-read each project/repo for ESSENCE (before writing bullets)
 A naive summary ("reviews code", "spec-to-ship workflow") misses what's impressive. Spawn
@@ -105,6 +117,14 @@ earn a bullet). Ten wording passes never fix a bullet that's about the wrong thi
 smells to catch early: it reads like a **feature list with no point** (missing spine), or like a
 **pitch/marketing** (spine carried by adjectives/mission instead of concrete built work).
 
+**Capture durable learnings to the dossier inline.** The moment a durable learning happens — the
+person corrects a pattern, decides a guardrail, or nails a project's point in their words — offer a
+one-line "record to dossier?". Distinguish durable vs one-off when offering ("a general preference,
+or just this bullet?") to set the `[durable]` vs `[context:<scope>]` tag. On yes, append immediately
+(dated; guardrails to §1, points to §2, prefs to §3, and log the correction in §4). A new learning
+that contradicts an existing entry SUPERSEDES it (mark the old `retired (superseded by <new>, DATE)`),
+never silently deletes. All writes are user-approved.
+
 ### 6. Bullet craft (the rules the critic enforces)
 - XYZ + the "so what?" ladder (task→output→outcome→business); stop at the highest
   DEFENDABLE rung.
@@ -129,6 +149,14 @@ prompt + the full method are in `references/jd-tailoring.md`. For a one-shot inv
 `commands/tailor-resume.md` slash command (copy it into `.claude/commands/`) — it runs this method on a
 pasted JD + master and returns the tailored Skills line, reordered bullets, an honest gaps list, and the
 portal knockout answers to expect.
+
+### 9. Close the session — write back to the dossier
+Before finishing, sweep the session for durable learnings not already captured inline: new
+guardrails decided, project points clarified in the person's words, register/process preferences,
+and any corrections. Propose them as a short per-item list ("add these to the dossier?"); on the
+user's approval, write each to the right section of `docs/dossier.md` (dated + tagged), append
+corrections to §4, and supersede (not delete) anything contradicted. This is what makes the next
+session start smarter — never skip it.
 
 > **See it end-to-end:** `references/worked-example.md` traces one bullet through the whole loop on a
 > fully-synthetic candidate — writer draft → critic (present/missing/violations/score) → ship-ready,
