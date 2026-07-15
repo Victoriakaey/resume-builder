@@ -181,6 +181,9 @@ legible in <10s · strongest/OSS work first · **work-auth strategy decided (if 
 - `references/jd-tailoring.md` — per-JD tailoring method (3-location placement, overlap target) + paste-able prompt.
 - `references/cover-letter.md` — whether to write one (conflicting data, by tier + channel) + a non-slop structure, AI-tells to avoid, AI-lab mission-fit, and the work-auth rule.
 - `references/worked-example.md` — one bullet start-to-finish on a synthetic candidate (the loop, made concrete).
+- `references/dossier-template.md` — the empty per-user dossier skeleton (4 sections + conventions).
+  Copied into the user's resume repo as `docs/dossier.md` on first use; read first / written back to
+  each session so the skill converges on the person (see Non-negotiables + steps 1, 5, 9).
 
 ## Bundled command
 - `commands/tailor-resume.md` — a `/tailor-resume` slash command wrapping the per-JD tailoring method.

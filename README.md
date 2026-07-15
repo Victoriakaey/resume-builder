@@ -24,6 +24,8 @@ and the uniform-cadence "AI tells" a same-model loop tends to produce.
   - `cover-letter.md` — when a cover letter is worth writing (and when it isn't) + a non-AI-slop structure
   - `writer-critic-workflow.md` + `.js` — the writer/critic bullet workflow and critic design
   - `worked-example.md` — one bullet start-to-finish on a synthetic candidate
+  - `dossier-template.md` — per-user dossier skeleton; becomes the user's `docs/dossier.md`, a
+    read-first/write-back profile so the skill learns the person across sessions
 - `commands/`
   - `tailor-resume.md` — a `/tailor-resume` slash command that runs the per-JD tailoring
     method on a pasted JD + master resume. Copy it into `.claude/commands/` to use it.
