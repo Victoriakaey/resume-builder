@@ -21,8 +21,12 @@ and the uniform-cadence "AI tells" a same-model loop tends to produce.
   - `market-fit.md` — how to research which roles/companies fit a candidate (+ 2026 title/tier findings)
   - `work-authorization.md` — F-1/OPT/sponsorship strategy on a resume (disclose vs omit, the portal trap)
   - `jd-tailoring.md` — per-JD tailoring method + a paste-able prompt
+  - `cover-letter.md` — when a cover letter is worth writing (and when it isn't) + a non-AI-slop structure
   - `writer-critic-workflow.md` + `.js` — the writer/critic bullet workflow and critic design
   - `worked-example.md` — one bullet start-to-finish on a synthetic candidate
+- `commands/`
+  - `tailor-resume.md` — a `/tailor-resume` slash command that runs the per-JD tailoring
+    method on a pasted JD + master resume. Copy it into `.claude/commands/` to use it.
 
 ## License
 MIT © 2026 Jiaqi (Victoria) Duan

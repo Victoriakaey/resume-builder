@@ -104,7 +104,10 @@ category-label disputes. 8–15 items; mirror JD terms at tailoring time, keep m
 The master is generic. For each application, swap in the JD's exact keywords (the employer's wording),
 use the 3-location placement rule, target 65-80% overlap (don't stuff — modern ATS penalize it),
 reorder to hit the target level's headline competency, and re-check one page. A paste-able tailoring
-prompt + the full method are in `references/jd-tailoring.md`.
+prompt + the full method are in `references/jd-tailoring.md`. For a one-shot invocation, ship the
+`commands/tailor-resume.md` slash command (copy it into `.claude/commands/`) — it runs this method on a
+pasted JD + master and returns the tailored Skills line, reordered bullets, an honest gaps list, and the
+portal knockout answers to expect.
 
 > **See it end-to-end:** `references/worked-example.md` traces one bullet through the whole loop on a
 > fully-synthetic candidate — writer draft → critic (present/missing/violations/score) → ship-ready,
@@ -127,4 +130,10 @@ legible in <10s · strongest/OSS work first · **work-auth strategy decided (if 
 - `references/market-fit.md` — the market-fit research METHOD + 2026 title/tier/signal/referral findings.
 - `references/work-authorization.md` — F-1/OPT/STEM-OPT/sponsorship strategy (disclose-vs-omit, the portal trap).
 - `references/jd-tailoring.md` — per-JD tailoring method (3-location placement, overlap target) + paste-able prompt.
+- `references/cover-letter.md` — whether to write one (conflicting data, by tier + channel) + a non-slop structure, AI-tells to avoid, AI-lab mission-fit, and the work-auth rule.
 - `references/worked-example.md` — one bullet start-to-finish on a synthetic candidate (the loop, made concrete).
+
+## Bundled command
+- `commands/tailor-resume.md` — a `/tailor-resume` slash command wrapping the per-JD tailoring method.
+  Copy it into `.claude/commands/`; invoke with the JD as the argument. Path-agnostic (references the
+  skill by name, not a hard path), so it works wherever the skill is installed.

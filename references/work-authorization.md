@@ -13,7 +13,8 @@ of the resume read. The skill covers it as a *strategy decision*, not a single r
 - **Never** write a bare label like "F-1 Visa" / "OPT" with no context — it raises a barrier before
   your qualifications are read.
 - **Omit (conservative):** say nothing on the resume; handle work authorization only in the
-  application portal's sponsorship question and, if needed, the cover letter.
+  application portal's sponsorship question (and, only if the posting explicitly raises it, one
+  factual positive line in the cover letter — see `cover-letter.md`).
 - **Disclose (proactive):** many recruiters check sponsorship status right after your name; a short,
   *specific, dated* line near contact info can pre-clear an eligibility question rather than leave it
   as a silent risk. If you disclose, be specific — vague beats nothing but specific beats vague.
