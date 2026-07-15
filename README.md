@@ -26,6 +26,8 @@ and the uniform-cadence "AI tells" a same-model loop tends to produce.
   - `worked-example.md` — one bullet start-to-finish on a synthetic candidate
   - `dossier-template.md` — per-user dossier skeleton; becomes the user's `docs/dossier.md`, a
     read-first/write-back profile so the skill learns the person across sessions
+  - `candidate-profile-template.md` — candidate-profile skeleton (facts + STAR story bank); becomes the
+    user's `docs/candidate-profile.md`, the substance store the resume/cover-letter/LinkedIn draw from
 - `commands/`
   - `tailor-resume.md` — a `/tailor-resume` slash command that runs the per-JD tailoring
     method on a pasted JD + master resume. Copy it into `.claude/commands/` to use it.

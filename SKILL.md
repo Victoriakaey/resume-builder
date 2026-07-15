@@ -212,6 +212,10 @@ legible in <10s · strongest/OSS work first · **work-auth strategy decided (if 
 - `references/dossier-template.md` — the empty per-user dossier skeleton (4 sections + conventions).
   Copied into the user's resume repo as `docs/dossier.md` on first use; read first / written back to
   each session so the skill converges on the person (see Non-negotiables + steps 1, 5, 9).
+- `references/candidate-profile-template.md` — the empty candidate-profile skeleton (8 sections + a STAR
+  accomplishment bank). Seeded into the user's repo as `docs/candidate-profile.md` on first use; the SUBSTANCE
+  source the resume/cover-letter are compressed from (profile = facts, dossier = voice). See Non-negotiables +
+  steps 1, 2, 5, 9.
 
 ## Bundled command
 - `commands/tailor-resume.md` — a `/tailor-resume` slash command wrapping the per-JD tailoring method.
