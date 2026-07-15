@@ -57,6 +57,16 @@ a subagent to read the real architecture/design docs/source and return: the esse
 it's non-trivial), the hardest/most novel things, and honest bullet-worthy highlights with
 any real numbers. Write bullets FROM this, never from the README top line.
 
+**Point vs mechanism — read the PRODUCT before the code.** Source code gives you *mechanisms*
+(there's a separate reviewer, an evidence guard, a git hook); it does NOT give you the *point*
+(what the thing is FOR, its one-sentence soul). If you build the resume from mechanisms you'll
+keep mistaking a component for the point and churn endlessly. For a **shipped/public product read
+its own positioning FIRST** — landing page, docs, how the founder pitches it to users — *that's*
+where the throughline lives; read code AFTER, only to make a chosen claim defensible. And when the
+project is the **user's own**, the person is the ground truth: get the essence *in their words*
+(ask, or read their product's framing) — do NOT reconstruct it via subagents and hand them your
+guesses to QA. A wrong essence makes every downstream bullet wrong.
+
 ### 3. Template & format (ATS-safe)
 - Default: **r/EngineeringResumes LaTeX template** (XCharter, single-column, `\hfill`
   dates, `\pdfgentounicode=1`, ~0.4in margins). Tight, clean, ATS-parsable.
@@ -83,6 +93,17 @@ no-mechanism) are the anti-sycophancy fix; structured `present/missing/violation
 **anti-AI-tell pass** (banned-word list + vary cadence — a same-model loop produces the exact
 uniform-rhythm tells recruiters catch). See `references/writer-critic-workflow.md`. **Always
 human-review the critic's approvals for integrity** — the critic lacks full ground truth.
+
+**Spine before bullets — and know when the loop is the WRONG tool.** Decide the entry's ONE
+throughline FIRST (what should a reader remember about this project?), then write bullets top-down
+that ladder off it — never bottom-up, polishing isolated bullets before the story is set. The
+writer/critic loop refines **wording only**. If you're several rounds deep and the corrections are
+about **facts** ("that's not what it does") or **what to feature** ("that's not the point / feels
+off / no focus"), STOP re-wording — the problem is upstream: wrong ground truth (→ go back to step 2,
+read the product/ask the person) or wrong altitude/selection (→ re-decide the spine and which facts
+earn a bullet). Ten wording passes never fix a bullet that's about the wrong thing. Two failure
+smells to catch early: it reads like a **feature list with no point** (missing spine), or like a
+**pitch/marketing** (spine carried by adjectives/mission instead of concrete built work).
 
 ### 6. Bullet craft (the rules the critic enforces)
 - XYZ + the "so what?" ladder (task→output→outcome→business); stop at the highest
