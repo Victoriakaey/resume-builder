@@ -19,6 +19,10 @@ strong resume is usually packaging & information architecture, not the person's 
   user's resume repo, read it — it is this person's accumulated ground truth: project points in
   their words, off-limits claims (guardrails), and register/process preferences. It **overrides
   the generic defaults below.** Missing = a new user; you'll bootstrap it in step 1.
+- **Read the candidate profile too (if it exists).** If `docs/candidate-profile.md` exists, read it — it
+  is the person's factual SUBSTANCE: work history, quantified achievements, skills, and a STAR story bank
+  that the bullets and letter are compressed FROM. Profile = WHAT (facts), dossier = HOW (voice + guardrails);
+  they divide labor and never collide. Missing = bootstrap it in step 1.
 - **Defensibility over modesty (not moral purity).** Push each bullet to the strongest rung
   you can talk about for 5 minutes — round up, frame hard, pick the best honest angle
   (under-selling is the more common failure). But don't cross into what unravels under
@@ -63,6 +67,14 @@ as `docs/dossier.md` and fill it during this intake — the dossier grows from s
 setup. On read, if a `[durable]` entry looks contradicted by recent work, FLAG it ("this may be
 stale — still holds?") rather than silently applying or auto-retiring.
 
+**Candidate profile (substance source / bootstrap-seed).** Read `docs/candidate-profile.md` for the
+person's facts + STAR accomplishment bank — draw achievements from the bank rather than re-asking for
+metrics the person already gave. If it is ABSENT, copy `references/candidate-profile-template.md` into the
+user's repo as `docs/candidate-profile.md` and SEED it from the resume + dossier: extract Identity /
+Targeting / Skills / Experience / Education, and reverse-derive an Accomplishment Bank entry from each
+existing resume bullet (each bullet → a STAR entry expanded back toward its raw context). Never fabricate —
+mark thin spots `(augment: …)`. The profile grows from session 1.
+
 ### 2. Deep-read each project/repo for ESSENCE (before writing bullets)
 A naive summary ("reviews code", "spec-to-ship workflow") misses what's impressive. Spawn
 a subagent to read the real architecture/design docs/source and return: the essence (why
@@ -78,6 +90,11 @@ where the throughline lives; read code AFTER, only to make a chosen claim defens
 project is the **user's own**, the person is the ground truth: get the essence *in their words*
 (ask, or read their product's framing) — do NOT reconstruct it via subagents and hand them your
 guesses to QA. A wrong essence makes every downstream bullet wrong.
+
+**If a candidate profile exists, the bank IS the pre-extracted essence.** For any project already in the
+Accomplishment Bank, draw its STAR entry instead of re-dispatching a subagent to re-read the source — the
+bank already holds the raw, quantified context. Only deep-read fresh for projects the bank doesn't yet cover
+(then write the result back as a new bank entry — see step 5).
 
 ### 3. Template & format (ATS-safe)
 - Default: **r/EngineeringResumes LaTeX template** (XCharter, single-column, `\hfill`
@@ -125,6 +142,12 @@ or just this bullet?") to set the `[durable]` vs `[context:<scope>]` tag. On yes
 that contradicts an existing entry SUPERSEDES it (mark the old `retired (superseded by <new>, DATE)`),
 never silently deletes. All writes are user-approved.
 
+**Route captures by kind — substance to the profile, style to the dossier.** A new FACT (a quantified
+result, a new role, a project story with real numbers, a skill) → offer "record to candidate-profile?" and
+on yes append it dated to the right section (a story → the Accomplishment Bank as a STAR entry with a fresh
+id + `Source:`). A new VOICE/guardrail learning still goes to the dossier. When unsure which, ask: does it
+change what's true (profile) or how we say it (dossier)?
+
 ### 6. Bullet craft (the rules the critic enforces)
 - XYZ + the "so what?" ladder (task→output→outcome→business); stop at the highest
   DEFENDABLE rung.
@@ -150,13 +173,16 @@ prompt + the full method are in `references/jd-tailoring.md`. For a one-shot inv
 pasted JD + master and returns the tailored Skills line, reordered bullets, an honest gaps list, and the
 portal knockout answers to expect.
 
-### 9. Close the session — write back to the dossier
+### 9. Close the session — write back (profile + dossier)
 Before finishing, sweep the session for durable learnings not already captured inline: new
 guardrails decided, project points clarified in the person's words, register/process preferences,
 and any corrections. Propose them as a short per-item list ("add these to the dossier?"); on the
 user's approval, write each to the right section of `docs/dossier.md` (dated + tagged), append
 corrections to §4, and supersede (not delete) anything contradicted. This is what makes the next
-session start smarter — never skip it.
+session start smarter — never skip it. Sweep for uncaptured SUBSTANCE too — new achievements, metrics,
+roles, or STAR stories — and propose those for `docs/candidate-profile.md` (dated; stories → the
+Accomplishment Bank with a `Source:`), the same way style/guardrail learnings go to the dossier. Two
+files, one closing sweep, split by substance-vs-style.
 
 > **See it end-to-end:** `references/worked-example.md` traces one bullet through the whole loop on a
 > fully-synthetic candidate — writer draft → critic (present/missing/violations/score) → ship-ready,
