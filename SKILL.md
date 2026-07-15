@@ -179,7 +179,9 @@ legible in <10s · strongest/OSS work first · **work-auth strategy decided (if 
 - `references/market-fit.md` — the market-fit research METHOD + 2026 title/tier/signal/referral findings.
 - `references/work-authorization.md` — F-1/OPT/STEM-OPT/sponsorship strategy (disclose-vs-omit, the portal trap).
 - `references/jd-tailoring.md` — per-JD tailoring method (3-location placement, overlap target) + paste-able prompt.
-- `references/cover-letter.md` — whether to write one (conflicting data, by tier + channel) + a non-slop structure, AI-tells to avoid, AI-lab mission-fit, and the work-auth rule.
+- `references/cover-letter.md` — whether to write one (by tier + channel) + the ordered generation method
+  (research → one angle → hook → map → close → de-slop), hook patterns, fast company-research, match-without-
+  mirroring, format-by-channel, AI-tells to avoid, AI-lab mission-fit, and the work-auth rule.
 - `references/worked-example.md` — one bullet start-to-finish on a synthetic candidate (the loop, made concrete).
 - `references/dossier-template.md` — the empty per-user dossier skeleton (4 sections + conventions).
   Copied into the user's resume repo as `docs/dossier.md` on first use; read first / written back to
@@ -189,3 +191,7 @@ legible in <10s · strongest/OSS work first · **work-auth strategy decided (if 
 - `commands/tailor-resume.md` — a `/tailor-resume` slash command wrapping the per-JD tailoring method.
   Copy it into `.claude/commands/`; invoke with the JD as the argument. Path-agnostic (references the
   skill by name, not a hard path), so it works wherever the skill is installed.
+- `commands/cover-letter.md` — a `/cover-letter` slash command wrapping the cover-letter method
+  (`references/cover-letter.md`). Copy it into `.claude/commands/`; invoke with the JD as the argument. Runs
+  the whether-to-write gate first, then drafts from the person's real material and returns the letter +
+  rationale + honest gaps + a format/AI-tell check. Path-agnostic (references the skill by name).

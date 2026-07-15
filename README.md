@@ -29,6 +29,8 @@ and the uniform-cadence "AI tells" a same-model loop tends to produce.
 - `commands/`
   - `tailor-resume.md` — a `/tailor-resume` slash command that runs the per-JD tailoring
     method on a pasted JD + master resume. Copy it into `.claude/commands/` to use it.
+  - `cover-letter.md` — a `/cover-letter` slash command that drafts a cover letter for a pasted JD from
+    the person's real material (resume + dossier). Copy it into `.claude/commands/` to use it.
 
 ## License
 MIT © 2026 Jiaqi (Victoria) Duan
