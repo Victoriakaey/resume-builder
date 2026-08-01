@@ -7,6 +7,20 @@ the sourced criteria in `writer-critic-workflow.md`). Scannable rule + one-line 
 replaced or hedged below — say "studies suggest", don't cite fake precision.
 
 ## Hierarchy & story
+
+> **0. Know the ceiling before you start.** A resume is a low-signal document and the
+> screening of it is close to chance: 76 technical recruiters producing ~2,200 evaluations of
+> 1,000+ resumes, scored against those candidates' real interview outcomes, were **55%**
+> correct on "would I interview this person" (a companion write-up: **53%**, Fleiss' κ **0.13**);
+> two randomly chosen recruiters differ by **41 percentage points** on the SAME resume; the
+> median look is **31 seconds**. What the skim rewards is largely unearnable at edit time —
+> prior FAANG employment is picked **35%** more often, and the top rejection reasons are
+> credential-shaped (no top firm, no top school). *So the honest leverage order is:*
+> **(1) referral / direct outreach · (2) a recognisable anchor on the page (rule 10b, awards,
+> publications) · (3) bullet craft.** Bullet craft is a floor to clear, not a lever to pull.
+> Say this out loud to the person early — it is the difference between a session that ends and
+> a session that loops on wording forever. *(interviewing.io, 2024–2026; see `market-fit.md`.)*
+
 1. **Trailer, not documentation.** Show protagonist → why → a few great frames →
    stop. *Why: a reader who already knows everything has no reason to interview you.*
 2. **One protagonist.** Recruiter must know which project matters most.
@@ -68,8 +82,25 @@ replaced or hedged below — say "studies suggest", don't cite fake precision.
 9. **Never list unbuilt work.** *Why: collapses in interview; costs integrity.*
 
 ## Sections
-10. **Skills = keyword footer.** Lean, least prominent, honest, ATS-readable.
-    *Why: skills prove nothing; they only filter-pass. Proof lives in bullets.*
+10. **Skills = keyword footer — lean in PROMINENCE, complete in COVERAGE.** Least visual
+    weight on the page, but do not trim the list itself to look tidy: the enumerable part is
+    the only part of an automated score that behaves. When one unchanged resume was run 100×
+    through HackerRank's open-sourced ATS, the checkbox section (technical skills) scored
+    identically in 98 of 100 runs while the judged section (projects) swung across a
+    33-point range. *Why: trimming the row costs real matches and buys only tidiness — and
+    the earlier framing ("keep minimal") was read as licence to drop live lane vocabulary.*
+    Still bounded by rule 11: complete **for your lane**, not for everyone.
+10b. **Give an unrecognised employer a few true words of context.** `Ripplet` says nothing;
+    `Ripplet (10-person healthtech startup)` gives the skim something to hold. Team size,
+    sector, stage, scale — whatever is true. *Why: the 31-second skim hunts for a name it
+    knows, and when it finds none the resume is judged at close to chance. This is the one
+    lever on that bottleneck that does not require having worked at a famous company.*
+    Never invent funding, users or scale to fill it. Flagged by the linter's `anchor` check.
+10c. **Fix every typo before touching any wording.** *Why: across ~2,200 recruiter
+    evaluations scored against real interview outcomes, the number of typos and grammatical
+    errors was the strongest resume-side predictor of an offer — while school, GPA and
+    highest degree predicted nothing at all.* This is the highest measured return of any
+    edit on the page, and it is the least interesting one to make. Linter: `typo`.
 11. **Match skills to the lane, not to everyone.** Copying an ML/CV skill row when
     you're an agent engineer = competing on your weakest turf. *Why: play your board.*
 12. **Present signal matters.** Show `Founder — Present`. *Why: "they didn't stop

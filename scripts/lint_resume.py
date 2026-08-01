@@ -152,7 +152,8 @@ DEFAULT_MAX_LINES = 2
 DEFAULT_MIN_TAIL_FILL = 0.35  # a last line thinner than this wastes a whole line
 
 ALL_CHECKS = ("page", "lines", "verb", "leadform", "stackfirst", "jargon", "aitell",
-              "leak", "metric", "measure", "stack", "beneficiary", "forbidden")
+              "leak", "metric", "measure", "stack", "beneficiary", "typo", "anchor",
+              "forbidden")
 
 ERROR, WARN, NOTE = "ERROR", "WARN", "NOTE"
 
@@ -631,6 +632,84 @@ def check_beneficiary(entries) -> list[Finding]:
     return out
 
 
+def check_anchor(entries) -> list[Finding]:
+    """An Experience employer with no context line next to its name.
+
+    The 31-second skim looks for an employer it recognizes; when it finds none it has no
+    anchor at all, and recruiter accuracy on that resume is near chance. The fix used in
+    interviewing.io's own before/after is a few factual words beside the name —
+    "DevTools Inc. ($50M Series B from Sequoia, 2M+ active users)". A machine cannot judge
+    whether a name is famous, so this fires on ANY employer without context and stays at
+    NOTE: the human decides which employers need the anchor and which are self-evident.
+    """
+    out = []
+    for e in entries:
+        if not re.search(r"experience|work", e["section"], re.I):
+            continue
+        head = e["header"]
+        if not head or "(" in head:
+            continue
+        out.append(Finding(NOTE, "anchor", e["header_line"],
+                           "employer carries no context — if a screener would not recognise "
+                           "the name, add a few true words (team size, sector, stage)", head))
+    return out
+
+
+def check_typo(bullets) -> list[Finding]:
+    """Spelling and mechanics — the ONE resume attribute measured to predict offers.
+
+    interviewing.io scored ~2,200 recruiter evaluations against real interview outcomes:
+    school, GPA and degree predicted nothing, and the strongest resume-side predictor of
+    an offer was the count of typos and grammatical errors. So this check earns its place
+    on evidence, not on taste.
+
+    Deliberately high-precision, low-recall. A dictionary pass was tried first and
+    measured as unusable: macOS ships /usr/share/dict/words (Webster's 1934), which has
+    no plurals and no gerunds, so a clean resume produced 40+ false positives ("agents",
+    "bugs", "students", "mapping"). A checker that cries wolf gets ignored, and an ignored
+    checker is worse than none. What is left only fires on things that are always wrong.
+    """
+    common = {
+        "recieve": "receive", "seperate": "separate", "occured": "occurred",
+        "definately": "definitely", "sucessful": "successful", "managment": "management",
+        "developement": "development", "responsibilty": "responsibility",
+        "acheive": "achieve", "buisness": "business", "enviroment": "environment",
+        "existance": "existence", "independant": "independent",
+        "maintainance": "maintenance", "perfomance": "performance",
+        "priviledge": "privilege", "refered": "referred", "teh": "the",
+        "thier": "their", "writting": "writing", "publically": "publicly",
+        "consistant": "consistent", "efficency": "efficiency", "improvment": "improvement",
+        "intergration": "integration", "optimzation": "optimization",
+        "reccomend": "recommend", "sucessfully": "successfully", "widley": "widely",
+        "colaborated": "collaborated", "arhitected": "architected",
+    }
+    out = []
+    for line, raw in bullets:
+        text = visible_text(raw)
+        low = text.lower()
+        for bad, good in common.items():
+            if re.search(rf"\b{bad}\b", low):
+                out.append(Finding(WARN, "typo", line,
+                                   f"misspelling: '{bad}' → '{good}'", text))
+        dup = re.search(r"\b(\w+)\s+\1\b", low)
+        if dup and dup.group(1) not in {"had", "that"}:
+            out.append(Finding(WARN, "typo", line,
+                               f"doubled word: '{dup.group(0)}'", text))
+        if re.search(r"\s+[,.;:]", text):
+            out.append(Finding(WARN, "typo", line, "space before punctuation", text))
+        if re.search(r"[a-z]{2},[A-Za-z]", text):
+            out.append(Finding(WARN, "typo", line, "missing space after a comma", text))
+        if re.search(r"\bi\b", text):
+            out.append(Finding(WARN, "typo", line, "lowercase standalone 'i'", text))
+        # Read the first CHARACTER, not the first word token: "1st Place" tokenises to
+        # "st", which is not a lowercase start.
+        head = text.lstrip()
+        if head and head[0].islower():
+            out.append(Finding(WARN, "typo", line,
+                               f"bullet starts lowercase ('{head.split()[0]}')", text))
+    return out
+
+
 def load_forbidden(dossier_path: str) -> list[str]:
     if not dossier_path or not os.path.exists(dossier_path):
         return []
@@ -771,6 +850,10 @@ def main() -> int:
         findings += check_stack(entries, skills_tokens(tex))
     if "beneficiary" in enabled:
         findings += check_beneficiary(entries)
+    if "typo" in enabled:
+        findings += check_typo(bullets)
+    if "anchor" in enabled:
+        findings += check_anchor(entries)
     if "stackfirst" in enabled:
         findings += check_stackfirst(bullets)
     if "jargon" in enabled:

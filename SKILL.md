@@ -45,6 +45,17 @@ strong resume is usually packaging & information architecture, not the person's 
 ## The process (section by section, don't rush)
 
 ### 1. Intake & positioning
+
+**Say the ceiling out loud first — it is part of the intake, not a disclaimer.** Screening of
+resumes is close to chance (76 recruiters, ~2,200 evaluations scored against real interview
+outcomes: 55% correct, 41-point disagreement between two recruiters on the same resume, 31-second
+median look), and what the skim rewards is largely brand you cannot edit into existence. So the
+leverage order is **(1) referral / direct outreach · (2) a recognisable anchor on the page ·
+(3) bullet craft** — see `references/principles.md` rule 0 and `references/market-fit.md`. Telling
+the person this early is what stops a session from looping on wording for hours; withholding it
+sells them a lever that mostly is not one. It does NOT mean doing less careful work — it means
+spending the care where it pays, and knowing when the page is done.
+
 Establish, before writing anything:
 - **Lane** — what role family (e.g. LLM/Agent engineer vs Applied ML vs fullstack). Pick
   one; it drives every emphasis. Don't cosplay a lane the person doesn't want.
@@ -197,6 +208,11 @@ change what's true (profile) or how we say it (dossier)?
 
 ### 7. Skills section
 Concrete tools only (languages/frameworks/DBs/cloud/named AI tools). Concepts → bullets.
+**Lean in prominence, complete in coverage** — least visual weight on the page, but do not trim
+the list to look tidy: when one unchanged resume was scored 100× by an open-sourced ATS, the
+checkbox section held steady (98/100 identical) while the judged sections swung 33 points, so the
+enumerable half is the only half of an automated score that behaves. Complete *for the lane*
+(rule 11), not for everyone.
 A single line with core competencies **bolded** as an eye-anchor works well and dodges
 category-label disputes. 8–15 items; mirror JD terms at tailoring time, keep master generic.
 
@@ -228,7 +244,9 @@ files, one closing sweep, split by substance-vs-style.
 
 **Run the mechanical half first — it is a script, not a reading.** `scripts/lint_resume.py` decides
 everything a machine can decide: page count, rendered line count per bullet, near-empty tail lines,
-weak lead verbs, **bullets whose subject is the product rather than the person** (`leadform`),
+weak lead verbs, **typos and mechanics** (`typo` — the one attribute measured to predict offers),
+**employers with no context line** (`anchor`), **bullets whose subject is the product rather than
+the person** (`leadform`),
 **entries that name no technology at all** (`stack`), **performance numbers with no measurement
 condition** (`measure`), **entries with no beneficiary** (`beneficiary`), stack-first openings,
 jargon density, banned AI-slop wording, one-sided round metrics, and any phrase the user's dossier

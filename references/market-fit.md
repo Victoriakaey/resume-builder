@@ -93,6 +93,36 @@ ai-jobs.net, Simplify.jobs curated lists, YC Work-at-a-Startup, RemoteOK (AI/ML)
 **Cover letters** still expected more often than not (even when "optional") for competitive/eng/AI
 roles — and are the natural home for work-auth context under the omit-from-resume strategy.
 
+**How the document is actually judged (2026-08 pass — the numbers behind rule 0).** Two things
+worth knowing before promising a rewrite will change outcomes:
+
+- *Human screening is near chance.* interviewing.io ran **76 technical recruiters × 30 resumes
+  each ≈ 2,200 evaluations of 1,000+ resumes** and scored them against those candidates' real
+  mock-interview outcomes: **55%** correct interview decisions (companion write-up: **53%**,
+  Fleiss' κ **0.13**); **41 percentage points** of disagreement between two random recruiters on
+  the same resume; **31-second** median look; recruiters made to spend **15 extra seconds** were
+  **34%** more accurate. Their confidence inverts at both tails — resumes rated 0–5% likely to
+  pass actually passed **47%**, and 95–100% ones passed **64%**. What the skim rewards is brand:
+  FAANG history **+35%** likelihood of being picked, top rejection reasons all credential-shaped.
+  Their own illustration: a resume with fabricated accomplishments but strong company and school
+  names drew a **90% callback rate**. One reported reordering (FAANG experience moved to the top)
+  produced **8× more interviews** — single anecdote, direction only. *Actionable counter-move for
+  candidates with no famous employer: a short factual context line beside the company name
+  (`principles.md` 10b), which is the fix their own before/after uses.*
+- *The automated layer is noisy in a specific, exploitable way.* A practitioner ran one unchanged
+  resume **100×** through HackerRank's open-sourced ATS (default `gemma3:4b`): scores ranged
+  **66–99**, and at an 85-point cutoff the same resume fails **~65%** of the time. But the
+  variance is not uniform — **checkbox sections were stable** (technical skills: 8/10 in 98 of
+  100 runs) while **judged sections swung** (projects). So the enumerable half is the half worth
+  optimising, and prose tuned for such a grader is largely wasted effort. *Directional: one
+  model, one tool, one resume.*
+
+**What could NOT be verified in this pass, and should not be repeated as fact:** the widely
+quoted "257.6 applications per job posting in 2026" traces only to content-farm resume blogs.
+Reddit (incl. r/EngineeringResumes' own success threads) is unreachable from the fetch tool, so
+that community's before/after corpus remains unmined — the only artefact recovered is its LaTeX
+template (article 11pt · letterpaper · 0.5in · XCharter · `enumitem` at `itemsep=-2pt`).
+
 ### Sources (confidence)
 - **HIGH / primary:** anthropic.com/careers (OSS-at-top; ~half staff no prior ML) · LangChain *State of
   Agent Engineering* 2025-26 (eval/observability/blocker data).
@@ -100,3 +130,9 @@ roles — and are the natural home for work-auth context under the omit-from-res
   fde.academy (FDE vs Applied-AI) · recruitingfromscratch.com (founding-engineer bar) ·
   cnbc.com 2026-01-12 (cold-apply still #1 by volume) · refer.me / mylivecv (referral per-attempt lift).
 - **LOW (directional):** interviewquery, resumeoptimizerpro, ai-jobs board aggregators.
+- **HIGH / primary (2026-08 pass):** interviewing.io — *Are recruiters better than a coin flip at
+  judging resumes?* · *Resumes suck. Here's the data.* · *Don't make recruiters think* · *Why
+  resume writing is snake oil* (their own recruiter study, n≈2,200, scored against real outcomes).
+- **MED (single practitioner experiment, n=100 runs):** danunparsed.com — *HackerRank open sourced
+  its ATS* (HN 1,032 points, 2026-06-29).
+- **DO NOT CITE:** "257.6 applications per posting" — content-farm only, no traceable primary.
