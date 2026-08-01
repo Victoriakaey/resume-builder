@@ -23,6 +23,16 @@ Claims never to re-propose, or to handle carefully. One line each, dated.
 
 - [example-handle] <the rule, one line — what not to say and lead with instead> — YYYY-MM-DD
 
+**Machine-checkable subset.** `scripts/lint_resume.py` reads the block below and fails the resume
+if any of these strings appears in a bullet. Curate it BY HAND: a guardrail line above usually
+quotes both the wrong phrasing and the acceptable one, and only you can tell them apart — an
+auto-extraction would ban the phrasing you actually want. Add a phrase here when a guardrail is
+about exact wording; leave judgment-shaped guardrails out of it.
+
+```forbidden-phrases
+# one phrase per line, matched case-insensitively as a substring; # starts a comment
+```
+
 ## 2. Project points — IN YOUR OWN WORDS (the soul, NOT the mechanisms)
 
 Per project: the one-sentence point (what it's FOR) + source. Not a feature list.

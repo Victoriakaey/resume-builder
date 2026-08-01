@@ -101,7 +101,13 @@ bank already holds the raw, quantified context. Only deep-read fresh for project
   dates, `\pdfgentounicode=1`, ~0.4in margins). Tight, clean, ATS-parsable.
 - Single column, standard headings ("Experience"/"Projects"/"Skills"/"Education"), contact
   in the body, `Month YYYY` dates, "Present" ok, no tables/columns/icons.
-- One line ≈ 95–100 visible characters at 11pt / 0.4in margins.
+- **Line capacity is a measurement, not a constant.** It swings with margins, font and point size —
+  a 0.4in-margin letterpaper page at 11pt XCharter fits ~120 visible characters per line, a 1in-margin
+  one closer to 90. Don't write to a remembered number: compile and measure with
+  `scripts/lint_resume.py`, which reads the real geometry out of the PDF.
+- **Watch the tail line, not the character count.** The costly formatting defect is a wrapped bullet
+  whose last line is nearly empty ("access control", "arXiv:2505.04843") — it buys one word and
+  spends a full line. Several of those add up to a section's worth of room.
 - See `references/resume-craft.md` for templates, ATS parsing, self-employment/founder
   entry format, skills-section rules.
 
@@ -156,6 +162,9 @@ change what's true (profile) or how we say it (dossier)?
   is the flex; NEVER lead with the stack (downlevels you).
 - Ownership verbs (Owned/Drove/Built), not helped/worked-on. Kill nominalizations. Compress
   WORDS not SIGNAL. Skills-buzzwords go in bullets where demonstrated.
+- **Vary the intensity.** Quantify the 2–4 spine bullets to the hilt; let the others stay short and
+  factual. Every bullet at maximum amplitude reads as inflated AND is an AI-tell (no human writes a
+  page with zero dynamic range). Decide this with the spine, not per bullet in the loop.
 - Full depth: `references/bullet-writing.md` (elite techniques) + `references/principles.md`
   (10-point checklist + verb bank).
 
@@ -189,6 +198,23 @@ files, one closing sweep, split by substance-vs-style.
 > plus the cross-bullet AI-tell review. Read it to see the negative criteria and dual-legibility in action.
 
 ## Guardrails checklist (run before "done")
+
+**Run the mechanical half first — it is a script, not a reading.** `scripts/lint_resume.py` decides
+everything a machine can decide: page count, rendered line count per bullet, near-empty tail lines,
+weak lead verbs, stack-first openings, jargon density, banned AI-slop wording, one-sided round
+metrics, and any phrase the user's dossier marks off-limits.
+
+```bash
+python3 scripts/lint_resume.py resume.tex --dossier docs/dossier.md
+```
+
+It exits non-zero on ERROR-level findings only; WARN/NOTE are for the human to judge. Needs
+`tectonic` or `pdflatex` plus poppler (`pdfinfo`/`pdftotext`) for the geometry checks, and degrades
+to source-only checks with `--no-compile`. **This is the "derive pass/fail in code, not an LLM
+boolean" rule applied to the skill's own checklist** — never eyeball what the script can measure, and
+never let the script's silence stand in for the human half below.
+
+Then read for the half no script can reach:
 one page (early/mid-career) · single column · standard headings · every bullet XYZ + defensible ·
 **every bullet dual-legible (impact up front, no bullet 100% jargon)** · ≥1 eval bullet for AI
 roles · no unbuilt work / unused tools · specific (not weak) verbs · **no AI-tells (varied cadence,
@@ -216,6 +242,14 @@ legible in <10s · strongest/OSS work first · **work-auth strategy decided (if 
   accomplishment bank). Seeded into the user's repo as `docs/candidate-profile.md` on first use; the SUBSTANCE
   source the resume/cover-letter are compressed from (profile = facts, dossier = voice). See Non-negotiables +
   steps 1, 2, 5, 9.
+
+## Bundled script
+- `scripts/lint_resume.py` — the mechanical half of the guardrails checklist (page count, rendered
+  line count + near-empty tail lines measured from the PDF's own geometry, weak verbs, stack-first
+  openings, jargon density, AI-slop wording, one-sided round metrics, dossier off-limits phrases).
+  Stdlib-only Python 3; `tectonic`/`pdflatex` + poppler unlock the geometry checks. Off-limits
+  phrases come from a hand-curated ` ```forbidden-phrases ` block in the user's `docs/dossier.md`
+  (hand-curated because a guardrail entry usually quotes both the wrong phrasing and the right one).
 
 ## Bundled command
 - `commands/tailor-resume.md` — a `/tailor-resume` slash command wrapping the per-JD tailoring method.

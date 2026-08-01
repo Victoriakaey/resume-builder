@@ -67,6 +67,35 @@ systemdesign.one frames it as "show what changed because you existed, not what y
 - Map to Amazon Leadership Principles / JD competencies; each bullet should yield a 5-min STAR story.
 - **Uplevel levers:** lead recent role with cross-team scope, add a mentorship bullet, quantify $/headcount. **Downlevel traps:** leading with stack, a Projects section past ~4yr experience, omitting ownership verbs.
 
+## Intensity distribution — not every bullet gets to be an epic
+Pushing **every** bullet to maximum quantified intensity backfires twice. It reads as inflated (a
+career where all twelve things were landmark wins is not a career, it's a pitch), and uniform
+maximum intensity is itself an **AI-tell** — a same-model loop that polishes each bullet to the same
+peak yields a page with no dynamic range, which is exactly what a human writer never produces.
+
+Pick the **2–4 bullets that carry the spine** and quantify those to the hilt. Let the rest be short,
+plain and factual — they establish scope and competence, they don't have to win. The contrast is
+what makes the big ones land: a reader who sees three calm lines and one hard number believes the
+number; a reader who sees twelve hard numbers believes none of them.
+
+This is a **selection** call, made once the spine is set — not something to renegotiate per bullet
+inside the writer/critic loop. The anti-AI-tell pass catches uniform *cadence*; this catches uniform
+*amplitude*, which the loop will otherwise happily produce.
+
+**Amplitude is one of three sameness axes — check all three.** The most language-independent AI tell
+is not vocabulary, it's that everything matches:
+- **Length** — every bullet running to the same measure, all filling their line to the same point.
+- **Shape** — every bullet built on the same grammar (verb + object + ", improving X by Y%").
+- **Closing move** — every bullet landing on the same kind of ending, most often a number. One
+  bullet that stops on a concrete fact or a named consequence buys credibility for the ones that
+  do end on a metric.
+
+**Repair by changing how the information enters, never by swapping in a synonym.** A banned word is a
+symptom; trading it for its nearest neighbour leaves the sentence's shape — and therefore the tell —
+exactly where it was. Work outside in: structure first (is the whole entry the same move repeated?),
+then register, then sentence pattern, and only last the individual word. If the structure is what's
+wrong, rewrite the bullet rather than editing it.
+
 ## "Almost-good" failure modes (the subtle ones)
 buried lede (payoff at line-2 end) · metric with no baseline · feature-scoped-as-initiative (verb↔scope mismatch) · tool-dump without engineering reasoning · credit ambiguity ("helped/we") · task-only/process-focused · claim with no number AND no proxy · unparseable jargon/codenames · the un-defendable bullet (can't narrate 5 min).
 
