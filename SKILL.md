@@ -129,6 +129,14 @@ no-mechanism) are the anti-sycophancy fix; structured `present/missing/violation
 uniform-rhythm tells recruiters catch). See `references/writer-critic-workflow.md`. **Always
 human-review the critic's approvals for integrity** — the critic lacks full ground truth.
 
+**Then run the two passes the per-bullet loop structurally cannot do** (same reason the AI-tell
+pass exists — the evidence isn't inside any single bullet): an **entry-level sameness pass** (are
+these N different actions, or N facets of one thing? facets read as "too many bullets", and cutting
+one just leaves N-1 facets) and a **resume-level storyline pass** (read the finished page and answer
+*why hire this person* and *hire them to do what* — if either answer needs a second read or arrives
+only at the third entry, fix section ORDER and entry lead-ins, not bullet wording). Both are
+specified in `references/writer-critic-workflow.md`.
+
 **Spine before bullets — and know when the loop is the WRONG tool.** Decide the entry's ONE
 throughline FIRST (what should a reader remember about this project?), then write bullets top-down
 that ladder off it — never bottom-up, polishing isolated bullets before the story is set. The
@@ -155,6 +163,25 @@ id + `Source:`). A new VOICE/guardrail learning still goes to the dossier. When 
 change what's true (profile) or how we say it (dossier)?
 
 ### 6. Bullet craft (the rules the critic enforces)
+- **Open with a past-tense verb — the subject is YOU, never the product or the reader.**
+  "Understands your codebase" and "Switch agents, keep one memory" are grammatical, specific,
+  one line, and say nothing about who did the work: that is landing-page voice, and it is the
+  single easiest way for a strong entry to read as a brochure. (Linter check: `leadform`.)
+- **Every entry names its stack somewhere in its bullets.** "Capability lives in bullets, not
+  Skills" is only half a rule — applied as *trim the Skills row* without *put the tools in the
+  bullets*, the stack falls out of both halves and the reader cannot tell what it was built
+  with. Read the real dependency manifest; never infer the stack from a README. (Check: `stack`.)
+- **Attach the measurement condition to every performance number** — `35% in staging tests`,
+  `120ms (30%) vs unoptimized baselines`, "moderately correlated (r≈0.54)". The volunteered
+  limit *raises* credibility: it shows you know where the number stops and it pre-answers the
+  follow-up. (Check: `measure`.)
+- **Enumerate to show the system's shape** ("retrieval, structured search, synthesis, critic,
+  fallback") and **keep architectural adjectives** ("deterministic pipeline", "until acceptance
+  or a retry limit") while killing rating ones ("robust", "seamless"). Test: could an interviewer
+  turn the word into a question worth answering?
+- **Name the beneficiary** — therapists, 100+ students, staff and admins. (Check: `beneficiary`.)
+- **One bullet = one DIFFERENT action.** N facets of one product feel long at N=4; N distinct
+  actions do not at N=5. When someone says "too many bullets", suspect sameness before count.
 - XYZ + the "so what?" ladder (task→output→outcome→business); stop at the highest
   DEFENDABLE rung.
 - Two-sided metrics (92ms→24ms) > one-sided (−68%); named checkable numbers > round %.
@@ -201,8 +228,11 @@ files, one closing sweep, split by substance-vs-style.
 
 **Run the mechanical half first — it is a script, not a reading.** `scripts/lint_resume.py` decides
 everything a machine can decide: page count, rendered line count per bullet, near-empty tail lines,
-weak lead verbs, stack-first openings, jargon density, banned AI-slop wording, one-sided round
-metrics, and any phrase the user's dossier marks off-limits.
+weak lead verbs, **bullets whose subject is the product rather than the person** (`leadform`),
+**entries that name no technology at all** (`stack`), **performance numbers with no measurement
+condition** (`measure`), **entries with no beneficiary** (`beneficiary`), stack-first openings,
+jargon density, banned AI-slop wording, one-sided round metrics, and any phrase the user's dossier
+marks off-limits.
 
 ```bash
 python3 scripts/lint_resume.py resume.tex --dossier docs/dossier.md
@@ -214,7 +244,16 @@ to source-only checks with `--no-compile`. **This is the "derive pass/fail in co
 boolean" rule applied to the skill's own checklist** — never eyeball what the script can measure, and
 never let the script's silence stand in for the human half below.
 
-Then read for the half no script can reach:
+Then read for the half no script can reach — **starting with the two gates, because they are the
+only ones that can invalidate work already approved bullet-by-bullet**:
+1. **Sameness, per entry.** Are these N different actions, or N facets of one thing? Could each
+   bullet become a different interview story? If two would produce the same story, they are one
+   bullet — and the fix is re-picking which actions earn a bullet, not deleting one facet.
+2. **Storyline, whole page.** Read it once as a stranger and answer aloud: *why hire this person?*
+   and *hire them to do what?* If either answer needs a second read, or only arrives at the third
+   entry, fix section ORDER and entry lead-ins — not bullet wording.
+
+Then the rest:
 one page (early/mid-career) · single column · standard headings · every bullet XYZ + defensible ·
 **every bullet dual-legible (impact up front, no bullet 100% jargon)** · ≥1 eval bullet for AI
 roles · no unbuilt work / unused tools · specific (not weak) verbs · **no AI-tells (varied cadence,

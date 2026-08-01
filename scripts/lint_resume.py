@@ -14,6 +14,14 @@ Checks
             capacity depends on the template's margins and font, so it is measured,
             not assumed). Falls back to a character estimate only with --no-compile.
   verb      bullets that open with a weak/ownerless verb
+  leadform  bullets that do not open with a past-tense verb at all — the subject is
+            the product ("Understands your codebase") or the reader ("Switch agents")
+            instead of the person who did the work
+  measure   a performance number with no measurement condition attached ("35%" vs
+            "35% in staging tests") — the volunteered limit is what makes it credible
+  stack     an Experience/Projects entry that names no technology in ANY of its
+            bullets, so a reader cannot tell what it was built with
+  beneficiary an entry where nobody is named as using the work
   stackfirst bullets that open with a tool/stack token
   jargon    bullets whose wording is almost entirely tech tokens (heuristic)
   aitell    banned AI-slop words and phrases
@@ -101,6 +109,36 @@ TECH_TOKENS = {
     "embedding", "embeddings", "transformer", "multi-agent", "agentic",
 }
 
+# A bullet that opens with one of these is telling the reader what YOU did. The
+# check below wants a past-tense action verb; -ed catches most of them, so this
+# list only has to carry the irregulars.
+IRREGULAR_LEAD_VERBS = {
+    "built", "led", "drove", "cut", "ran", "wrote", "rewrote", "rebuilt", "grew",
+    "set", "made", "took", "sold", "won", "kept", "sent", "spent", "taught",
+    "brought", "chose", "found", "gave", "held", "met", "put", "shrank", "split",
+    "swept", "tore", "threw", "understood", "began", "broke", "dug",
+}
+
+# Phrases that say where a number came from or where it stops being true. A
+# performance number without one of these is a claim; with one it is a
+# measurement, and the volunteered limit is what makes it credible.
+MEASURE_MARKERS = (
+    "in staging", "as measured by", "measured by", "compared to", "compared with",
+    "versus", " vs ", "baseline", "median", "average", "mean ", "p50", "p95", "p99",
+    "in testing", "on a sample", "sample of", "self-reported", "modeled", "modelled",
+    "estimate", "estimated", "moderately", "weakly", "strongly", "over ~", "across ",
+    "per review", "per call", "per day", "n =", "n=",
+)
+
+# Someone the work is FOR. A build with no beneficiary is a hobby; a build with
+# one is a product. NOTE-level only: some legitimate bullets are pure internals.
+BENEFICIARY_TOKENS = {
+    "users", "user", "customers", "customer", "clients", "client", "students",
+    "therapists", "clinicians", "patients", "engineers", "developers", "teams",
+    "team", "staff", "admins", "guests", "learners", "recruiters", "businesses",
+    "business", "people", "readers", "players", "subscribers", "operators",
+}
+
 STOPWORDS = {
     "a", "an", "the", "and", "or", "of", "for", "to", "in", "on", "with", "by",
     "from", "at", "as", "into", "across", "over", "that", "which", "it", "its",
@@ -113,8 +151,8 @@ DEFAULT_MAX_PAGES = 1
 DEFAULT_MAX_LINES = 2
 DEFAULT_MIN_TAIL_FILL = 0.35  # a last line thinner than this wastes a whole line
 
-ALL_CHECKS = ("page", "lines", "verb", "stackfirst", "jargon", "aitell",
-              "leak", "metric", "forbidden")
+ALL_CHECKS = ("page", "lines", "verb", "leadform", "stackfirst", "jargon", "aitell",
+              "leak", "metric", "measure", "stack", "beneficiary", "forbidden")
 
 ERROR, WARN, NOTE = "ERROR", "WARN", "NOTE"
 
@@ -170,6 +208,93 @@ def extract_bullets(tex: str) -> list[tuple[int, str]]:
     if current is not None:
         bullets.append((current_line, " ".join(current).strip()))
     return bullets
+
+
+def extract_entries(tex: str) -> list[dict]:
+    """Group bullets by the entry (one job, one project) whose header precedes them.
+
+    Several rules are properties of an ENTRY, not of a bullet: whether the job named
+    any technology at all, whether anyone is said to use the thing. Those are
+    invisible to a per-bullet pass — each bullet can look fine while the entry as a
+    whole says nothing. An entry header is the last real line before \\begin{itemize}
+    (in this template: the `\\textbf{Role,} Company \\hfill dates \\\\` line); a list
+    with no header before it still becomes an entry with an empty header so
+    section-level checks can skip it.
+    """
+    body = strip_comments(tex)
+    start = body.find(r"\begin{document}")
+    offset = body[:start].count("\n") if start != -1 else 0
+    if start != -1:
+        body = body[start:]
+
+    entries: list[dict] = []
+    section = ""
+    pending: list[tuple[int, str]] = []
+    cur: dict | None = None
+    item: list[str] | None = None
+    item_line = 0
+
+    def flush() -> None:
+        nonlocal item
+        if cur is not None and item:
+            cur["bullets"].append((item_line, " ".join(item).strip()))
+        item = None
+
+    for idx, line in enumerate(body.splitlines(), start=1):
+        s = line.strip()
+        lineno = idx + offset
+        sec = re.match(r"\\section\*?\{([^}]*)\}", s)
+        if sec:
+            flush()
+            cur, pending, section = None, [], visible_text(sec.group(1))
+            continue
+        if s.startswith(r"\begin{itemize}"):
+            flush()
+            head_line, head_text = pending[-1] if pending else (lineno, "")
+            cur = {"section": section, "header": visible_text(head_text),
+                   "header_line": head_line, "bullets": []}
+            entries.append(cur)
+            continue
+        if s.startswith(r"\end{itemize}"):
+            flush()
+            cur, pending = None, []
+            continue
+        if cur is not None:
+            if s.startswith(r"\item"):
+                flush()
+                item, item_line = [s[len(r"\item"):].strip()], lineno
+            elif item is not None and s:
+                item.append(s)
+            elif not s:
+                flush()
+        elif s and not s.startswith((r"\vspace", r"\newline", r"\hrule", r"\titlerule",
+                                    r"\end{", r"\begin{")):
+            pending.append((lineno, s))
+    flush()
+    return entries
+
+
+def skills_tokens(tex: str) -> set[str]:
+    """Every tool the resume itself lists under Skills, lowercased.
+
+    Used as the tech vocabulary for this particular resume, so the stack check does
+    not depend on a hard-coded list keeping up with the ecosystem: whatever the
+    person claims in Skills counts as a technology name everywhere else.
+    """
+    body = strip_comments(tex)
+    m = re.search(r"\\section\*?\{Skills\}(.*?)(?=\\section|\Z)", body, re.S)
+    if not m:
+        return set()
+    out: set[str] = set()
+    for chunk in re.split(r"[,;|·]", visible_text(m.group(1))):
+        t = chunk.strip().lower()
+        t = re.sub(r"\s*\([^)]*\)", "", t).strip()
+        if t and len(t) > 1:
+            out.add(t)
+            for part in t.split("/"):
+                if len(part.strip()) > 1:
+                    out.add(part.strip())
+    return out
 
 
 def visible_text(latex: str) -> str:
@@ -392,6 +517,120 @@ def check_metric(bullets) -> list[Finding]:
     return out
 
 
+ACTION_SECTIONS = re.compile(r"experience|projects?|work", re.I)
+
+
+def action_bullets(entries) -> list[tuple[int, str]]:
+    """Bullets that are supposed to describe work you did.
+
+    Awards and publications are deliberately excluded: "1st Place, ..." and "IEEE CAI
+    2025 — ..." are citations, and demanding a past-tense verb of them would be noise.
+    """
+    return [b for e in entries if ACTION_SECTIONS.search(e["section"]) for b in e["bullets"]]
+
+
+def check_leadform(bullets) -> list[Finding]:
+    """A bullet must open with a past-tense verb — with what YOU did, not what it does.
+
+    The failure this catches is subtle and survives every other check: the bullet is
+    grammatical, specific and one line, but its subject is the product ("Understands
+    your codebase") or the reader ("Switch agents, keep one memory"). Both read as
+    landing-page copy, and neither says who did the work.
+    """
+    out = []
+    for line, raw in bullets:
+        text = visible_text(raw)
+        first = (words(text) or [""])[0].lower()
+        if not first:
+            continue
+        if first.endswith("ed") or first in IRREGULAR_LEAD_VERBS:
+            continue
+        out.append(Finding(WARN, "leadform", line,
+                           f"opens with '{first}' — not a past-tense action verb, so the "
+                           f"subject is the product or the reader, not you", text))
+    return out
+
+
+def check_measure(bullets) -> list[Finding]:
+    """A performance number with no measurement condition attached.
+
+    `35%` is a claim; `35% in staging tests` is a measurement. Volunteering the limit
+    reads as more credible, not less — it shows the writer knows where the number
+    stops being true, and it pre-answers the interview follow-up.
+    """
+    # `$5,000` is a prize, not a performance number — a thousands separator right
+    # after the digits is the cheapest way to tell a sum from a unit cost.
+    perf = re.compile(r"(\d[\d.]*\s*%|\d[\d.]*\s*ms\b|\$\s?\d+(?:\.\d+)?(?!\d*,)|"
+                      r"\br\s*[≈~=]\s*[\d.]|\d[\d.]*\s*s\b|\d[\d.]*\s*x\b)", re.I)
+    out = []
+    for line, raw in bullets:
+        text = visible_text(raw)
+        m = perf.search(text)
+        if not m:
+            continue
+        low = text.lower()
+        if any(marker in low for marker in MEASURE_MARKERS):
+            continue
+        # A parenthetical hanging off the number states the condition in the writer's
+        # own words ("15% (by completion rate)"). A purely numeric one does not.
+        tail = text[m.end():m.end() + 40]
+        paren = re.match(r"\s*\(([^)]*)\)", tail)
+        if paren and re.search(r"[A-Za-z]{3}", paren.group(1)):
+            continue
+        out.append(Finding(NOTE, "measure", line,
+                           f"'{m.group(0).strip()}' carries no measurement condition — say "
+                           f"where it was measured (in staging / vs baseline / median over N)",
+                           text))
+    return out
+
+
+def check_stack(entries, vocab: set[str]) -> list[Finding]:
+    """An Experience/Projects entry that names no technology anywhere in its bullets.
+
+    Capability belongs in bullets rather than in the Skills row — but that rule is
+    only half applied if the Skills row is trimmed AND the bullets never name a tool.
+    Then the stack has fallen out of both halves and a reader cannot tell what the
+    thing was built with.
+    """
+    out = []
+    for e in entries:
+        if not re.search(r"experience|projects?|work", e["section"], re.I):
+            continue
+        if len(e["bullets"]) < 2:
+            continue
+        text = " ".join(visible_text(raw) for _, raw in e["bullets"]).lower()
+        toks = set(words(text))
+        toks |= {t.lower() for t in re.findall(r"[A-Za-z][\w.+#-]*", text)}
+        if toks & (TECH_TOKENS | vocab):
+            continue
+        out.append(Finding(WARN, "stack", e["header_line"],
+                           f"entry names no technology in any of its "
+                           f"{len(e['bullets'])} bullets — a reader cannot tell what it "
+                           f"was built with", e["header"]))
+    return out
+
+
+def check_beneficiary(entries) -> list[Finding]:
+    """An entry with nobody on the receiving end of the work.
+
+    NOTE-level on purpose: some honest bullets are pure internals. But an entry where
+    no one is named as using the thing describes a build, not a product.
+    """
+    out = []
+    for e in entries:
+        if not re.search(r"experience|projects?|work", e["section"], re.I):
+            continue
+        if not e["bullets"]:
+            continue
+        text = " ".join(visible_text(raw) for _, raw in e["bullets"]).lower()
+        if set(words(text)) & BENEFICIARY_TOKENS:
+            continue
+        out.append(Finding(NOTE, "beneficiary", e["header_line"],
+                           "no one is named as using this — say who it is for "
+                           "(therapists, 100+ students, staff and admins)", e["header"]))
+    return out
+
+
 def load_forbidden(dossier_path: str) -> list[str]:
     if not dossier_path or not os.path.exists(dossier_path):
         return []
@@ -521,8 +760,17 @@ def main() -> int:
     elif "lines" in enabled:
         findings += check_length_fallback(bullets, args.max_chars)
 
+    entries = extract_entries(tex)
     if "verb" in enabled:
         findings += check_verb(bullets)
+    if "leadform" in enabled:
+        findings += check_leadform(action_bullets(entries))
+    if "measure" in enabled:
+        findings += check_measure(action_bullets(entries))
+    if "stack" in enabled:
+        findings += check_stack(entries, skills_tokens(tex))
+    if "beneficiary" in enabled:
+        findings += check_beneficiary(entries)
     if "stackfirst" in enabled:
         findings += check_stackfirst(bullets)
     if "jargon" in enabled:

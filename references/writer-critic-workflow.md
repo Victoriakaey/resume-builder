@@ -75,7 +75,31 @@ Per-bullet criteria the critic checks (each maps to a real reviewer rubric axis 
 
 NEGATIVE checks (any hit is a demerit): jargon pile-up with no plain-value signal · buried lede ·
 leads with the stack · metric with no baseline · round % with no mechanism · passive / "responsible
-for" / credit-ambiguous ("we/helped") · unfalsifiable claim · **AI-tell tics** (see next section).
+for" / credit-ambiguous ("we/helped") · unfalsifiable claim · **subject is the product or the
+reader** ("Understands your codebase", "Switch agents, keep one memory" — grammatical, specific,
+one line, and it never says who did the work) · **a performance number with no measurement
+condition** · **a rating adjective** (robust/seamless/scalable — as opposed to an architectural
+one, which is a merit; see `principles.md` rule 7) · **AI-tell tics** (see next section).
+
+## Two passes the per-bullet loop CANNOT do (structural, not a rule you can add)
+
+The loop scores each bullet alone. Two defects are invisible from there — not because the critic
+is weak, but because the evidence for them does not exist inside a single bullet. They need their
+own passes, exactly like the AI-tell pass below and for exactly the same reason.
+
+**1. Entry-level sameness pass — run after an entry's bullets all pass.** Ask: *are these N
+different actions, or N facets of one thing?* Facets read as padding and the reader experiences
+it as "too many bullets" — so the instinct is to cut one, which just leaves N-1 facets. The fix
+is upstream: re-pick which actions earn a bullet (see `principles.md` 7e). A useful forcing
+question: could each bullet be a different interview story? If two would produce the same story,
+they are one bullet.
+
+**2. Resume-level storyline pass — run once, at the end, on the whole page.** Ask two questions
+in the reader's voice and answer them out loud from the page alone: *why hire this person?* and
+*hire them to do what?* If either answer needs a bullet read twice, or arrives only after the
+third entry, the throughline is not landing — fix the ORDER and the first line of each entry, not
+the wording of individual bullets. This is the trailer test from `principles.md` rule 1, applied
+as a gate rather than as advice.
 
 Also fold in the elite techniques (see `bullet-writing.md`): "so what?" ladder to the highest
 defendable rung · two-sided metrics > one-sided · lead with metric-or-problem, never stack ·

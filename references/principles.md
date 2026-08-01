@@ -31,8 +31,36 @@ replaced or hedged below — say "studies suggest", don't cite fake precision.
 6. **Keep every number.** r≈0.54, 35%, 15%, 120ms/30% — never trim these.
    *Why: quantified results are the single biggest edge over vague competitors. (Numbers-beat-duties
    is strong consensus; specific outperformance percentages floating online are mostly unsourced.)*
-7. **Cut adjectives, not metrics.** Kill "centrally orchestrated", "session-scoped",
-   "structured API". *Why: adjectives read as padding; numbers read as proof.*
+7. **Cut adjectives that RATE the work; keep the ones that NAME an architectural choice.**
+   Kill "robust", "scalable", "seamless", "pixel-perfect", "highly performant" — self-awarded
+   grades, unfalsifiable, padding. Keep "deterministic pipeline", "session-scoped", "centrally
+   orchestrated", "until acceptance or a retry limit" — each names a decision that had
+   alternatives. *Test: can an interviewer turn the word into a question worth answering?
+   "Why deterministic?" is a real question; "why robust?" is not.* *Why: the second kind is the
+   cheapest insider signal on the page — that last example tells any agent engineer the writer
+   knows a loop needs a hard exit. (Revised 2026-08-01: this rule used to order all three
+   keepers killed, which threw away exactly that signal.)*
+7b. **Every performance number carries its measurement condition.** `35% in staging tests` ·
+   `15% as measured by completion rates` · `120ms (30%) vs unoptimized baselines` · and when a
+   correlation is middling, say so — "moderately correlated (r≈0.54)". *Why: the volunteered
+   limit is what makes the number credible — it shows the writer knows where it stops being
+   true, and it pre-answers the interview follow-up. A bare number is a claim; a bounded number
+   is a measurement.* Mechanised as the linter's `measure` check.
+7c. **Enumerate to show the system's SHAPE.** "retrieval, structured search, itinerary
+   synthesis, critic, and fallback" · "evaluated for factuality, feasibility, constraint
+   satisfaction, safety, and currency". *Why: a reader who follows none of the detail still
+   sees that the thing has structure — five named parts outperform any adjective at proving the
+   work was real.*
+7d. **Name the beneficiary.** therapists · 100+ university students · staff, admins and guests.
+   *Why: work with nobody on the receiving end is a build; work with someone is a product.*
+   Mechanised as the linter's `beneficiary` check.
+7e. **One bullet = one DIFFERENT action; an entry's bullets must not be facets of one thing.**
+   Five distinct actions (component library · auth/RBAC · caching · API indexing · the product)
+   never feel like too many; four facets of one product feel like too many at four. *Why: when
+   a reader says "too many bullets", the count is usually innocent and the sameness is the
+   defect — cutting one facet just leaves three facets.* NOT mechanisable: it needs the
+   entry-level pass in `writer-critic-workflow.md`, because a per-bullet critic sees each facet
+   alone and approves every one of them.
 8. **Strong past-tense verb; prefer a SPECIFIC verb over a generic one.** "Migrated/Cut/Benchmarked"
    over "Led/Handled/Worked on". Varying verbs across bullets is a nice polish, *but reuse is fine* —
    flag a *weak/vague* verb, not mere repetition. *Why: the myth is "never repeat a verb"; the real
