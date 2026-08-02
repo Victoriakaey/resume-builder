@@ -146,14 +146,40 @@ STOPWORDS = {
     "was", "were", "be", "been", "using", "used", "use",
 }
 
+# The KIND of thing that was built. Not a feature name and not a metaphor — a
+# word that puts the work in a category the reader already has: a tool, a
+# platform, a service. An entry can name its stack, its metrics and its design
+# decisions and still never say this, and then a first-time reader finishes the
+# entry unable to say what the thing IS. Coined names ("second mind", "code-map",
+# "process tier") read as category words to the person who invented them and as
+# nothing at all to everyone else, which is exactly why this has to be checked
+# against a fixed vocabulary rather than by looking for confident-sounding nouns.
+CATEGORY_TOKENS = {
+    "tool", "tools", "tooling", "toolkit", "platform", "app", "apps",
+    "application", "service", "system", "systems", "library", "framework",
+    "sdk", "cli", "extension", "plugin", "dashboard", "dashboards",
+    "website", "site", "pipeline", "saas", "product", "engine",
+    "database", "compiler", "package", "marketplace", "game",
+    "assistant", "daemon", "harness", "runtime", "scraper",
+    "crawler", "linter", "tracker", "wrapper",
+}
+
+# Deliberately NOT category words, though they name kinds of software: in this
+# corpus they almost always appear as the thing the work acts ON, not the thing
+# that was built — "reviews a coding agent's work", "calls the model", "in the
+# browser". Including them made the check silent on the exact entry that
+# prompted it, which is the only test that mattered.
+CATEGORY_FALSE_FRIENDS = {"agent", "agents", "bot", "model", "client", "server",
+                          "browser", "editor", "api"}
+
 DEFAULT_MAX_CHARS = 120      # fallback only; the real capacity is measured from the PDF
 DEFAULT_MAX_PAGES = 1
 DEFAULT_MAX_LINES = 2
 DEFAULT_MIN_TAIL_FILL = 0.35  # a last line thinner than this wastes a whole line
 
 ALL_CHECKS = ("page", "lines", "verb", "leadform", "stackfirst", "jargon", "aitell",
-              "leak", "metric", "measure", "stack", "beneficiary", "typo", "anchor",
-              "forbidden")
+              "leak", "metric", "measure", "stack", "category", "beneficiary",
+              "typo", "anchor", "forbidden")
 
 ERROR, WARN, NOTE = "ERROR", "WARN", "NOTE"
 
@@ -611,6 +637,38 @@ def check_stack(entries, vocab: set[str]) -> list[Finding]:
     return out
 
 
+def check_category(entries) -> list[Finding]:
+    """An entry that never says what KIND of thing the work was.
+
+    Distinct from `stack` and from `anchor`, and it is the gap neither of them
+    sees. `stack` asks what it was built WITH; `anchor` asks whether the employer
+    name means anything; this asks whether the reader can name the thing at all.
+    An entry can pass both — real technologies, a company context line — and still
+    describe the work only in vocabulary its author invented, in which case the
+    reader reaches the end knowing it was written in TypeScript and still unable
+    to say whether it is a website, a CLI, or a service.
+
+    Looks in the header as well as the bullets, because a category word beside the
+    company name ("Acme (developer tool for X)") does the job just as well as one
+    inside a bullet, and cheaper — that line usually has room to spare.
+    """
+    out = []
+    for e in entries:
+        if not re.search(r"experience|projects?|work", e["section"], re.I):
+            continue
+        if not e["bullets"]:
+            continue
+        text = " ".join([e["header"]] + [visible_text(raw) for _, raw in e["bullets"]])
+        if set(words(text.lower())) & CATEGORY_TOKENS:
+            continue
+        out.append(Finding(WARN, "category", e["header_line"],
+                           "entry never says what KIND of thing this is (tool, platform, "
+                           "service, ...) — a first-time reader finishes it unable to name "
+                           "the thing; a word beside the employer name is the cheapest fix",
+                           e["header"]))
+    return out
+
+
 def check_beneficiary(entries) -> list[Finding]:
     """An entry with nobody on the receiving end of the work.
 
@@ -848,6 +906,8 @@ def main() -> int:
         findings += check_measure(action_bullets(entries))
     if "stack" in enabled:
         findings += check_stack(entries, skills_tokens(tex))
+    if "category" in enabled:
+        findings += check_category(entries)
     if "beneficiary" in enabled:
         findings += check_beneficiary(entries)
     if "typo" in enabled:
