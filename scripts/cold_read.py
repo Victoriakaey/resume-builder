@@ -63,6 +63,42 @@ SYSTEM_PROMPT = (
     "something, answer 'not stated'. Answer only from the text."
 )
 
+# Which CLI to read with. Reading the same page with a DIFFERENT model lineage is
+# the strongest version of this test: three Claude readers share Claude's blind
+# spots, so three agreements are worth less than they look. Only `claude` accepts
+# a replaced system prompt and a tool denylist as flags — for the others the same
+# instruction is prepended to the user prompt instead, which is weaker isolation
+# but still a reader that has never seen this repo.
+CLI_SHAPES = {
+    "claude": {
+        "argv": lambda prompt, model: (
+            ["claude", "-p", prompt, "--model", model, "--system-prompt", SYSTEM_PROMPT,
+             "--disallowed-tools", "Bash", "Read", "Edit", "Write", "Glob", "Grep",
+             "WebFetch", "WebSearch", "Task"]
+        ),
+        "inline_system": False,
+        "default_model": "sonnet",
+    },
+    # --skip-git-repo-check is required, not optional: the reader deliberately runs
+    # in a throwaway directory, which is exactly the "not a trusted git repo" case
+    # codex refuses by default. Without it the run dies with an empty stdout.
+    "codex": {
+        "argv": lambda prompt, model: ["codex", "exec", "--skip-git-repo-check", prompt],
+        "inline_system": True,
+        "default_model": "",
+    },
+    "gemini": {
+        "argv": lambda prompt, model: ["gemini", "-p", prompt],
+        "inline_system": True,
+        "default_model": "",
+    },
+    "agy": {
+        "argv": lambda prompt, model: ["agy", "--print", prompt],
+        "inline_system": True,
+        "default_model": "",
+    },
+}
+
 
 # --------------------------------------------------------------------------
 # resume -> plain text
@@ -102,15 +138,22 @@ def tex_to_text(tex_path: str) -> str:
 # the cold reader
 # --------------------------------------------------------------------------
 
-def ask_cold_reader(resume_text: str, questions: dict, model: str) -> dict:
+def ask_cold_reader(resume_text: str, questions: dict, model: str,
+                    cli: str = "claude") -> dict:
     """Run one reader with no context and return its answers keyed by question id.
 
-    Runs in a throwaway cwd so no CLAUDE.md is discovered, and replaces the system
-    prompt so the default one (which carries environment and memory) is not used.
+    Runs in a throwaway cwd so no CLAUDE.md is discovered, and — on the CLIs that
+    take it as a flag — replaces the system prompt so the default one, which
+    carries environment and memory, is never used.
     """
+    shape = CLI_SHAPES.get(cli)
+    if shape is None:
+        raise SystemExit(f"unknown --cli {cli!r}; known: {', '.join(CLI_SHAPES)}")
+
     numbered = "\n".join(f"- {qid}: {text}" for qid, text in questions.items())
     prompt = (
-        "Here is the full text of a resume:\n\n"
+        (SYSTEM_PROMPT + "\n\n" if shape["inline_system"] else "")
+        + "Here is the full text of a resume:\n\n"
         "<resume>\n" + resume_text.strip() + "\n</resume>\n\n"
         "Answer each question below from that text alone.\n\n"
         + numbered + "\n\n"
@@ -121,21 +164,17 @@ def ask_cold_reader(resume_text: str, questions: dict, model: str) -> dict:
     with tempfile.TemporaryDirectory() as sandbox:
         try:
             proc = subprocess.run(
-                ["claude", "-p", prompt,
-                 "--model", model,
-                 "--system-prompt", SYSTEM_PROMPT,
-                 "--disallowed-tools", "Bash", "Read", "Edit", "Write", "Glob",
-                 "Grep", "WebFetch", "WebSearch", "Task"],
+                shape["argv"](prompt, model or shape["default_model"]),
                 capture_output=True, text=True, cwd=sandbox, timeout=300,
             )
         except FileNotFoundError:
-            raise SystemExit("`claude` CLI not found on PATH")
+            raise SystemExit(f"`{cli}` CLI not found on PATH")
         except subprocess.TimeoutExpired:
-            raise SystemExit("cold reader timed out after 300s")
+            raise SystemExit(f"{cli} cold reader timed out after 300s")
 
     raw = (proc.stdout or "").strip()
     if not raw:
-        raise SystemExit(f"cold reader returned nothing.\n{proc.stderr[-800:]}")
+        raise SystemExit(f"{cli} cold reader returned nothing.\n{proc.stderr[-800:]}")
     return parse_answers(raw, questions)
 
 
@@ -202,7 +241,10 @@ def main() -> int:
     ap = argparse.ArgumentParser(description=__doc__.splitlines()[0])
     ap.add_argument("tex")
     ap.add_argument("--expect", default="", help="path to the expectations JSON")
-    ap.add_argument("--model", default="sonnet")
+    ap.add_argument("--cli", default="claude",
+                    help="which agent CLI reads the page: " + ", ".join(CLI_SHAPES))
+    ap.add_argument("--model", default="",
+                    help="model override; defaults per --cli")
     ap.add_argument("--runs", type=int, default=3,
                     help="independent cold readers; a concept must survive a majority")
     ap.add_argument("--raw", action="store_true", help="print every answer, not just misses")
@@ -226,7 +268,7 @@ def main() -> int:
     n = max(1, args.runs if expect else 1)
     runs = []
     for i in range(n):
-        answers = ask_cold_reader(resume_text, questions, args.model)
+        answers = ask_cold_reader(resume_text, questions, args.model, args.cli)
         runs.append(answers)
         if "_unparsed" in answers:
             print(f"reader {i + 1} did not return JSON — every concept counts as "
