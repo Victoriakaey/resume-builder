@@ -8,8 +8,8 @@ Items carry stable `B#` ids so external notes (e.g. a references log) can cite t
 ## Triage — 2026-07-31
 
 Everything below B1 came out of a single session reading eleven external references. Recorded here so
-the judgement doesn't have to be re-derived, **not** as a decision — Victoria explicitly deferred
-choosing.
+the judgement doesn't have to be re-derived, **not** as a decision — the repo owner explicitly
+deferred choosing.
 
 **The context that makes the sorting mean anything:** this skill has one user writing one resume for
 one lane. Most of the open items are engineering against *repeat use by many people over time* —

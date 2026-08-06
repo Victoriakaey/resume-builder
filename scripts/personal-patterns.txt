@@ -1,0 +1,38 @@
+# One extended-regex per line, case-insensitive. Keep this list in the PUBLIC repo:
+# the patterns are what must never appear, and naming them here is the point.
+# A pattern that cannot fire is a test failure — see tests/test_check_no_personal.sh.
+#
+# These values are the current adopter's. If you fork this repo, replace every line
+# below with your own.
+#
+# Every value listed here is already public, so naming it here restates a disclosure
+# rather than creating one. Most are public in the plain way: the name in LICENSE and
+# README, the GitHub handle and the profile URLs on the open web. The email is the one
+# exception worth spelling out, because it is public by a different route and a blanket
+# "it is elsewhere in this repo" would be false — it is not in this branch's tree, but it
+# is already published in this repo's history on the default branch, and it is the address
+# the adopter puts on job applications. Never add a value that appears nowhere else — a
+# phone number, a street address, a government ID — because for those this file would
+# itself be the leak. Before adding anything, check publication, not co-occurrence: a
+# value that happens to sit in another file here is not thereby public, and `git grep`
+# alone cannot tell you it is absent, because it does not read commit messages or history.
+Victoria
+Jiaqi
+Duan
+Siltpoke
+Project Life Cycle
+project-life-cycle
+UCSC
+Santa Cruz
+jd\.?victoria\.?work
+victoria-duan\.?vercel\.?app
+Victoriakaey
+linkedin\.?com/in/jiaqi-duan
+
+# --- test-only patterns ---
+# These name a fictional persona used by tests/fixtures/leaky.md. They exist so the
+# fixture can be a realistic prose leak without putting a real person's details in a
+# public repo. Do not remove: tests/test_check_no_personal.sh depends on them.
+Buttercup Nightshade
+Sporkwave
+Ferngully Institute

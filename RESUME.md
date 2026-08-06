@@ -109,7 +109,7 @@ as a test.
 - Don't copy text from the no-license repos (de-AI writing skill, AI-resume-assistant, CareerForge)
   or code from ApplyPilot (AGPL-3.0). This repo is MIT and public. Ideas only.
 
-## Open decision for Victoria (asked, not yet answered)
+## Open decision for the repo owner (asked, not yet answered)
 
 Register a new motif `checker-always-passes` in the references log? Four candidate members, four
 distinct mechanisms, identical symptom: operator-precedence always-true condition
