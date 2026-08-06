@@ -25,6 +25,17 @@ Two inputs, neither of which lives in this repo:
    `references/application-answers-template.md` into a private location and fill it in.
 2. **A tracker** — wherever the chosen roles live, with a column for per-application archive.
 
+**Finding the store.** This repo cannot carry its path: the path differs for every operator and
+points at private content. So, before filling anything, look for a recorded path in the standing
+project instructions this skill can already read — `CLAUDE.md`, project memory, whatever the host
+uses. If none is recorded, ask the operator where their answer store is and write the answer into
+those instructions as one line: the absolute path, named as the answer store the `job-application`
+skill reads. Recording it is part of the setup, not an optional tidy-up — a path asked twice is the
+same defect as a question asked twice (step 4): the record failed, not the operator.
+
+If the operator has no store yet, stop there and point them at
+`references/application-answers-template.md` to fill in. Do not proceed on a guessed path.
+
 **If the answer store is missing, stop and say so.** Never fall back to the template's example
 values: filling a real employer's form with placeholder data is worse than not filling it.
 
