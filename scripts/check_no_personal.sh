@@ -9,6 +9,15 @@ patterns="$here/personal-patterns.txt"
 [ -f "$patterns" ] || { echo "missing pattern file: $patterns" >&2; exit 2; }
 [ "$#" -gt 0 ] || { echo "usage: $0 <file>..." >&2; exit 2; }
 
+# A guard that silently skips a missing/mistyped path and reports "clean" is
+# fail-open, not fail-safe. Collect every bad path and refuse to run at all
+# rather than exit 0 having checked nothing.
+missing=0
+for f in "$@"; do
+  [ -f "$f" ] || { echo "no such file: $f" >&2; missing=1; }
+done
+[ "$missing" -eq 0 ] || exit 2
+
 found=0
 while IFS= read -r pat; do
   case "$pat" in ''|'#'*) continue;; esac
