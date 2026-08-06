@@ -22,6 +22,7 @@ class Config:
     companies_path: pathlib.Path
     runs_dir: pathlib.Path
     summary_range: str | None = None
+    summary_cell: str | None = None
 
 
 def load(path: str | None = None) -> Config:
@@ -47,4 +48,5 @@ def load(path: str | None = None) -> Config:
         companies_path=pathlib.Path(os.path.expanduser(data["companies_path"])),
         runs_dir=pathlib.Path(os.path.expanduser(data["runs_dir"])),
         summary_range=data.get("summary_range") or None,
+        summary_cell=data.get("summary_cell") or None,
     )

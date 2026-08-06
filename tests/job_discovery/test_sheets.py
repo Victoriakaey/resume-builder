@@ -40,3 +40,18 @@ def test_more_rows_than_claimed_is_accepted_because_the_claim_is_hand_maintained
 def test_no_claim_configured_means_no_check_rather_than_a_silent_pass(capsys):
     sheets.assert_complete_read(returned_rows=115, claimed_total=None)
     assert "unchecked" in capsys.readouterr().err.lower()
+
+
+def test_numbers_in_a_block_are_found_with_their_addresses():
+    found = sheets.find_numbers([["Job Tracker", "", "191 roles"],
+                                 ["updated 2026", "", ""]], "A1:R4")
+    assert ("C1", 191) in found
+    assert ("A2", 2026) in found
+
+
+def test_a_thousands_separator_is_one_number_not_two():
+    assert sheets.find_numbers([["1,204 roles"]], "A1:R4") == [("A1", 1204)]
+
+
+def test_addresses_are_relative_to_the_range_start():
+    assert sheets.find_numbers([["7"]], "D2:R4") == [("D2", 7)]
