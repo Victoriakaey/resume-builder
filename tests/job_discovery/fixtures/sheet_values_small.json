@@ -1,0 +1,5 @@
+{"range": "'Job Tracker'!A6:R", "majorDimension": "ROWS",
+ "values": [
+   ["Discovered", "https://boards.greenhouse.io/acme/jobs/1", "", "", "2026-08-01", "Acme", "AI Engineer", "SF", "Hybrid", "2026-08-01", "High", "1", "8", "", "", "", "", ""],
+   ["Applied", "https://jobs.lever.co/beta/uuid-2", "", "", "2026-08-02", "Beta", "LLM Systems Engineer", "Remote (CA)", "Remote", "2026-08-02", "Medium", "2", "7", "", "", "", "", ""]
+ ]}
