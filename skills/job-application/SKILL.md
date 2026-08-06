@@ -33,7 +33,7 @@ values: filling a real employer's form with placeholder data is worse than not f
 | This skill | The person applying |
 |---|---|
 | Open pages, classify the channel, fill text fields | Upload the resume |
-| Answer questions the store has settled | Review every filled field |
+| Answer questions the store has settled — never an attestation (step 4) | Review every filled field |
 | Draft open-ended answers from stored material | Edit the drafts |
 | List every filled field and every blank at handoff | Press Submit |
 
@@ -53,27 +53,36 @@ Five *filled* applications, not five rows looked at.
    dates, ownership, metrics, and stated limitations. If a question needs a stronger claim than the
    material supports, leave it blank and raise it.
 4. **Stop for four categories.** Leave blank and report:
-   - the employer forbids AI-assisted filling — the whole form is untouched;
-   - legal attestations, consents, arbitration agreements, background-check authorisations;
-   - answers only the applicant can know (personal-history questions);
-   - a policy-level question the store does not already settle.
+
+   1. the employer forbids AI-assisted filling — the whole form is untouched;
+   2. legal attestations, consents, arbitration agreements, background-check authorisations;
+   3. answers only the applicant can know (personal-history questions);
+   4. a policy-level question the store does not already settle.
+
+   **Policy-level questions** are the fourth category, and only the fourth. They are answerable
+   automatically **only on an exact wording match** with a stored policy; a near-match is not a
+   match, and near-matches get raised:
+
+   work authorization · sponsorship · relocation · onsite/hybrid commitment · salary · EEO
+   self-identification · disability · veteran status · criminal history · non-compete · background
+   check · export control · AI-use attestations
+
+   **Categories 2 and 3 outrank this list.** An item here that is also an attestation, a consent, or
+   an authorisation — background check, export control, non-compete, AI-use attestations — is
+   never auto-answered, whatever the store says: category 2 wins. Criminal history is category 3 as
+   well. A stored ruling on any of them records what the applicant has decided to enter, for them to
+   enter; it never authorises this skill to tick the box on their behalf. Only the person applying
+   attests.
+
+   When a policy-level question has no stored answer: ask, then **write the ruling back into the
+   store**, with its basis and the date. A question asked twice means the store failed, not that the
+   operator was forgetful. Writing a ruling back never converts a category-2 item into an
+   auto-answerable one.
 5. **Hand off per application** — company, role, every filled field *with its actual text*, every
    blank with its reason, and which answers are drafts. A summary invites skimming; the point of the
    handoff is that nothing reaches an employer unread.
 6. **Close out** after outcomes are reported: update the tracker in one pass, and archive both what
    was proposed and what was actually submitted.
-
-## Policy-level questions
-
-These are answerable automatically **only on an exact wording match** with a stored policy. A
-near-match is not a match:
-
-work authorization · sponsorship · relocation · onsite/hybrid commitment · salary · EEO
-self-identification · disability · veteran status · criminal history · non-compete · background
-check · export control · AI-use attestations
-
-When one has no stored answer: ask, then **write the ruling back into the store**, with its basis
-and the date. A question asked twice means the store failed, not that the operator was forgetful.
 
 ## Recording a ruling
 

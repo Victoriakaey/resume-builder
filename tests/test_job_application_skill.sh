@@ -56,6 +56,43 @@ if [ -f "$s" ]; then
   # grammatically rather than repeating the headings verbatim ("Policy-level",
   # "material blocks" lowercase) — hence case-insensitive stem matches rather
   # than exact heading text.
+  # Attestation precedence. The policy-level question list and stop category 2
+  # name four of the same things (background check, export control, non-compete,
+  # AI-use attestations) with opposite handling: the stop list says leave them
+  # blank, the policy list says auto-answer them on an exact wording match. In
+  # the source design that list is NESTED INSIDE stop category 4 — it *defines*
+  # the fourth stop category. An earlier SKILL.md promoted it to its own
+  # top-level "## Policy-level questions" section, which severed it from the
+  # stop list and left it reading as a standing permission; combined with
+  # "write the ruling back into the store", that is a path to the agent ticking
+  # an attestation box on a real employer's form. Do not re-promote it. If it
+  # must live in its own section for readability, the precedence has to travel
+  # with it, which is what this asserts: whichever "## " section holds the list
+  # must also state that category 2 wins.
+  #
+  # Anchor on "veteran status", which occurs only inside the list itself — not
+  # on "AI-use attestations", which the precedence sentence also names and which
+  # would therefore let a re-promoted list anchor onto the section the
+  # precedence stayed in. Every "## " section carrying the list must carry the
+  # precedence too, so a file-wide grep passing is not enough.
+  grep -qF -- 'veteran status' "$s" || note "SKILL.md no longer carries the policy-level question list"
+  orphaned="$(awk '
+    function flush() {
+      if (sect != "" && has_list && !has_prec) print sect
+      has_list = 0; has_prec = 0
+    }
+    /^## / { flush(); sect = $0; next }
+    {
+      if (index($0, "veteran status")) has_list = 1
+      if (index($0, "never auto-answered, whatever the store says")) has_prec = 1
+    }
+    END { flush() }
+  ' "$s")"
+  [ -z "$orphaned" ] || note "the policy-level question list appears in a section with no attestation-precedence statement (${orphaned}) — an agent reading it there sees permission to auto-answer an attestation (design §6 step 4: the list IS stop category 4, not a standing permission)"
+  # The thing the precedence points at must still be there to point at.
+  grep -qF -- 'legal attestations, consents, arbitration agreements' "$s" \
+    || note "SKILL.md's stop list no longer carries the legal-attestation category"
+
   grep -qi 'constants'      "$s" || note "SKILL.md never names the store's Constants section"
   grep -qi 'polic'          "$s" || note "SKILL.md never names the store's Policies section"
   grep -qi 'material block' "$s" || note "SKILL.md never names the store's Material blocks section"
