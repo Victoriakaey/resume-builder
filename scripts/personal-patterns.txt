@@ -1,6 +1,15 @@
 # One extended-regex per line, case-insensitive. Keep this list in the PUBLIC repo:
 # the patterns are what must never appear, and naming them here is the point.
 # A pattern that cannot fire is a test failure — see tests/test_check_no_personal.sh.
+#
+# These values are the current adopter's. If you fork this repo, replace every line
+# below with your own.
+#
+# Every value listed here is already public elsewhere in this repo or on the open web
+# (the name in LICENSE and README, the GitHub handle, the public profile URLs), so
+# naming it here restates a disclosure rather than creating one. Never add a value
+# that appears nowhere else — a phone number, a street address, a government ID —
+# because for those this file would itself be the leak.
 Victoria
 Jiaqi
 Duan
@@ -10,8 +19,6 @@ project-life-cycle
 UCSC
 Santa Cruz
 jd\.?victoria\.?work
-***REMOVED***
-***REMOVED***
 victoria-duan\.?vercel\.?app
 Victoriakaey
 linkedin\.?com/in/jiaqi-duan
