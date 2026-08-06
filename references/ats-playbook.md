@@ -94,8 +94,10 @@ These exist because each one has already failed in practice.
   default way to fill a form.
 - **Fill top-to-bottom, so Submit stays out of the viewport as long as possible.** Submit sits at the
   bottom of the form: work downward and the one control that must never be hit is off-screen for most
-  of the fill. This is the direct mitigation for the accidental submission above — the page scrolled
-  between the screenshot and the click, and the click landed on a Submit that was in view.
+  of the fill. This is the direct mitigation for the stale-screenshot failure at the top of this
+  list, which has already happened once: the page scrolled between capture and click, the click
+  landed on a Submit that had scrolled into view, and an application went out without its author
+  ever seeing it.
 - **Browser extensions that autofill job applications** (Simplify, Jobright and similar) mutate the
   DOM and scroll the page asynchronously. They are the single largest source of automation failure
   observed: an accidental submission, silent click failures, a full form reset, and renderer
