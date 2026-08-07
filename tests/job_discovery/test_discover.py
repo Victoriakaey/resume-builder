@@ -1,6 +1,7 @@
 """End-to-end over fake sources: no network, no sheet."""
 from __future__ import annotations
 import datetime as dt, json, pathlib
+from types import SimpleNamespace
 from jobdiscovery import ats, discover, rolefile, sheets
 
 NOW = dt.datetime(2026, 8, 6, 12, tzinfo=dt.timezone.utc)
@@ -109,3 +110,42 @@ def test_a_second_run_into_the_same_directory_is_refused(tmp_path):
         pass
     else:
         raise AssertionError("a second run into an already-written directory must be refused")
+
+
+def test_a_non_empty_run_dir_without_a_ledger_is_still_refused(tmp_path):
+    """A run that crashed partway through writing role files never reached
+    book.write(run_dir / "run.json") — a guard that only checks for run.json
+    would wave the next run straight in, and the new ledger would then describe
+    a disk that still has the crashed run's leftover files on it."""
+    (tmp_path / "roles").mkdir()
+    (tmp_path / "roles" / "leftover.md").write_text("stale from a crashed run")
+    assert not (tmp_path / "run.json").exists()
+    try:
+        discover.run(roles=[role(2)], tracker_rows=[], run_dir=tmp_path, now=NOW,
+                    source_results=[("greenhouse", 1, True, "")])
+    except FileExistsError:
+        pass
+    else:
+        raise AssertionError(
+            "a non-empty run directory without a ledger must still be refused")
+
+
+def test_a_malformed_companies_entry_is_one_failed_source_not_a_crash(tmp_path, monkeypatch):
+    """_fetch_all's docstring promises isolation per source. Building the source's
+    display name from entry['ats']/entry['token'] before the try turned a missing
+    key into an uncaught KeyError that took the whole run down with it — the
+    opposite of that promise."""
+    from jobdiscovery import simplify
+    monkeypatch.setattr(simplify, "fetch", lambda cache_dir: [])
+    companies_path = tmp_path / "companies.yaml"
+    companies_path.write_text("companies:\n  - name: Bad\n    ats: greenhouse\n    source: test\n")
+    cfg = SimpleNamespace(companies_path=companies_path, runs_dir=tmp_path)
+    book_sources = []
+    roles = discover._fetch_all(cfg, book_sources)
+    assert roles == []
+    # The malformed entry plus simplify (stubbed to succeed with zero roles).
+    assert len(book_sources) == 2
+    name, count, ok, error = book_sources[0]
+    assert name == "<malformed entry>"
+    assert count == 0 and ok is False
+    assert "KeyError" in error

@@ -30,9 +30,12 @@ def run(*, roles, tracker_rows, run_dir, now, source_results) -> ledger.RunLedge
     # Writing a second run into a directory that already holds one leaves files
     # the new run.json does not account for, which is the same lie by a different
     # route: the ledger would describe a run the disk does not match.
-    if (run_dir / "run.json").exists():
+    # Any content, not just a run.json — a run that crashed partway through writing
+    # role files never got to write its ledger, and reusing that directory would
+    # leave the new ledger describing a disk it does not match.
+    if run_dir.exists() and any(run_dir.iterdir()):
         raise FileExistsError(
-            f"{run_dir} already holds a run. Pass a different --run-id, or remove it."
+            f"{run_dir} is not empty. Pass a different --run-id, or remove it."
         )
     book = ledger.RunLedger()
     for name, count, ok, error in source_results:
@@ -101,8 +104,11 @@ def _fetch_all(cfg, book_sources: list) -> list:
     roles: list = []
     companies = (yaml.safe_load(cfg.companies_path.read_text()) or {}).get("companies", [])
     for entry in companies:
-        name = f"{entry['ats']}:{entry['token']}"
+        # Built inside the try: an entry missing a key is one failed source, not a
+        # crashed run. Isolation is the whole point of this loop.
+        name = "<malformed entry>"
         try:
+            name = f"{entry['ats']}:{entry['token']}"
             url = ats.ENDPOINTS[entry["ats"]].format(token=entry["token"])
             response = requests.get(url, timeout=30, headers={"User-Agent": "job-discovery/0.1"})
             response.raise_for_status()
