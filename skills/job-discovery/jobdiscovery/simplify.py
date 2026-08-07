@@ -56,12 +56,15 @@ def fetch(cache_dir: pathlib.Path) -> list[dict]:
 # keeps that from being re-litigated as an oversight. Both fields are present on
 # every listing, and the whole-branch review is right that a false `active` looks
 # like a closed posting being served as a lead. But over the recorded fixture the
-# two flags partition perfectly by who contributed the row — every "Simplify"
-# entry is active=False/is_visible=True and every bot-contributed entry is
-# active=True/is_visible=False, 16 and 4 of 20 — so filtering on `active` would
-# drop four fifths of the file, filtering on `is_visible` would drop the rest,
-# and filtering on both would leave nothing at all. That is not what a single
-# authoritative "this posting is open" flag looks like.
+# two flags do not partition cleanly by who contributed the row: 15 of the 16
+# active=False/is_visible=True rows come from "Simplify" and all 4 of the
+# active=True/is_visible=False rows come from a bot contributor, but one more
+# bot-contributed row also sits at active=False/is_visible=True alongside the
+# Simplify rows. So filtering on `active` would drop most of the file (including
+# nearly all of what the Simplify source itself published), filtering on
+# `is_visible` would drop the rest, and filtering on both would leave nothing at
+# all. That is not what a single authoritative "this posting is open" flag looks
+# like.
 #
 # Guessing which reading is right is exactly the move the rest of this system
 # refuses to make (ats.py never falls back to "now"; _work_mode never coerces an
