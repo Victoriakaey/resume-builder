@@ -55,6 +55,42 @@ class RoleFile:
         return [row[c] for c in COLUMNS]
 
 
+# A fact the board did not state is written as this literal, exactly as a missing
+# timestamp already becomes "unknown (no ATS timestamp)" below. write() used to
+# emit a blank, and parse() refuses a blank required fact — so a board that left
+# a field empty produced a file the parser would not read back, and the refusal
+# landed AFTER run.json had sealed the run's yield and AFTER Step 2 had written
+# several hundred words of prose into it. The ledger said N and the tracker got
+# fewer, with nothing counting the difference: the ledger-disagreeing-with-reality
+# failure this whole system exists to prevent, relocated past every invariant
+# watching for it. The gap belongs in the tracker cell where a human can see it.
+# parse()'s strictness is correct and is unchanged.
+UNKNOWN = "unknown"
+
+
+def _stated(value) -> str:
+    """What the board said, or the word that says it said nothing."""
+    text = "" if value is None else str(value).strip()
+    return text or UNKNOWN
+
+
+def _fit_cell(role, fit: int) -> str:
+    """A score computed over an empty JD is an absence, not a verdict.
+
+    fitscore's topics component can only fire on the description and its location
+    component is structurally 0 without a stated work mode, so a role from a
+    discovery source — which carries no description at all — scores at the floor
+    no matter how well it fits. Sorting the tracker by Fit Score, the obvious use
+    of that column, then buries every discovery lead as "worst fit". Same ruling
+    the rest of this system already applies to a missing timestamp and to an
+    unstated work mode: no signal, no credit — and no number either.
+
+    fitscore.score stays pure and unchanged; the decision is made here, where the
+    cell is written, alongside the other unknowns.
+    """
+    return str(fit) if role.description.strip() else UNKNOWN
+
+
 def _posted_phrase(age_hours: float | None) -> str:
     """There is one window, so the phrase names it rather than the role carrying it."""
     if age_hours is None:
@@ -67,16 +103,16 @@ def write(path, role, *, fit: int, confidence: str, age_hours: float | None,
     path = pathlib.Path(path)
     front = {
         "status": "Discovered",
-        "job_url": role.url,
+        "job_url": _stated(role.url),
         "date_found": run_date.isoformat(),
-        "company": role.company,
-        "role": role.title,
-        "location": role.location,
-        "work_mode": role.work_mode,
+        "company": _stated(role.company),
+        "role": _stated(role.title),
+        "location": _stated(role.location),
+        "work_mode": _stated(role.work_mode),
         "posted": _posted_phrase(age_hours),
-        "freshness_confidence": confidence,
-        "requisition_id": role.job_id,
-        "fit_score": str(fit),
+        "freshness_confidence": _stated(confidence),
+        "requisition_id": _stated(role.job_id),
+        "fit_score": _fit_cell(role, fit),
         "source": role.source,
         "ats": role.ats,
     }
