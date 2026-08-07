@@ -99,6 +99,13 @@ def parse(path) -> RoleFile:
         front = yaml.safe_load(match.group(1)) or {}
     except yaml.YAMLError as exc:
         raise MalformedRoleFile(f"{path}: front matter is not valid YAML: {exc}") from exc
+    # Valid YAML that is not a mapping. A scalar makes the membership test below
+    # raise TypeError, which escapes as a crash rather than as this module's own
+    # error — and a caller looping over roles would lose the whole run to one bad
+    # file instead of skipping it.
+    if not isinstance(front, dict):
+        raise MalformedRoleFile(
+            f"{path}: front matter is a {type(front).__name__}, not a mapping of facts")
     missing = [f for f in FACT_FIELDS if f not in front]
     if missing:
         raise MalformedRoleFile(f"{path}: missing required fields: {', '.join(missing)}")
@@ -111,7 +118,14 @@ def parse(path) -> RoleFile:
 
     body = match.group(2)
     names = SECTION.findall(body)
-    missing_sections = [n for n in PROSE_SECTIONS if n not in names]
+    # An exact heading repeated is an ambiguity, not a shape to resolve quietly:
+    # the dict built below would keep the last one and drop the earlier text with
+    # no signal. Step 2 sees these six strings in its own input, so repeating one
+    # verbatim is a plausible slip.
+    duplicates = sorted({n for n in names if names.count(n) > 1})
+    if duplicates:
+        raise MalformedRoleFile(f"{path}: repeated section(s): {', '.join(duplicates)}")
+    missing_sections = [n for n in (*PROSE_SECTIONS, "jd") if n not in names]
     if missing_sections:
         raise MalformedRoleFile(f"{path}: missing section(s): {', '.join(missing_sections)}")
 

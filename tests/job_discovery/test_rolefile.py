@@ -87,3 +87,40 @@ def test_a_blank_required_fact_raises_rather_than_writing_the_word_none(tmp_path
     path.write_text(path.read_text().replace("fit_score: '8'", "fit_score:"))
     with pytest.raises(rolefile.MalformedRoleFile, match="blank"):
         rolefile.parse(path)
+
+
+def test_each_section_keeps_its_own_text(tmp_path):
+    """A round trip of the empty file write() produces cannot catch a chunk-indexing
+    slip, because every section is empty and indistinguishable."""
+    path = written(tmp_path)
+    text = path.read_text()
+    for name in rolefile.PROSE_SECTIONS:
+        text = text.replace(f"## {name}\n\n", f"## {name}\n\n{name.upper()}_TEXT\n\n")
+    path.write_text(text)
+    parsed = rolefile.parse(path)
+    for name in rolefile.PROSE_SECTIONS:
+        assert parsed.sections[name] == f"{name.upper()}_TEXT"
+    assert len(parsed.to_row()) == 18
+    assert parsed.empty_sections() == []
+
+
+def test_a_repeated_section_raises_rather_than_keeping_the_last_one(tmp_path):
+    path = written(tmp_path)
+    path.write_text(path.read_text() + "\n## notes\n\nsecond copy\n")
+    with pytest.raises(rolefile.MalformedRoleFile, match="repeated"):
+        rolefile.parse(path)
+
+
+def test_a_missing_jd_section_raises(tmp_path):
+    path = written(tmp_path)
+    text = path.read_text()
+    path.write_text(text[:text.index("## jd")])
+    with pytest.raises(rolefile.MalformedRoleFile, match="jd"):
+        rolefile.parse(path)
+
+
+def test_front_matter_that_is_not_a_mapping_raises_this_modules_error(tmp_path):
+    path = tmp_path / "scalar.md"
+    path.write_text("---\n42\n---\n\n## jd\n\nx\n")
+    with pytest.raises(rolefile.MalformedRoleFile, match="not a mapping"):
+        rolefile.parse(path)
