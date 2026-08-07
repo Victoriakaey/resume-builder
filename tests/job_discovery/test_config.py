@@ -1,10 +1,9 @@
 """The one seam between this public repo and the adopter's private setup.
 
 The module's own docstring says it never carries a default and fails loudly
-rather than continuing with a guess. It did carry one:
-"~/Documents/resume/docs/job-discovery/config.yaml" — a path into the author's
-private repo, shipped in the public one, which also made the skill work on
-exactly one machine.
+rather than continuing with a guess. It did carry one, and it named a directory
+inside the adopter's own private repo — shipped in the public one, and working
+on exactly one machine.
 """
 from __future__ import annotations
 import inspect, pathlib, pytest
