@@ -32,8 +32,8 @@ def test_an_ats_url_yields_a_board_token_for_verification():
 
 
 def test_a_non_ats_url_leaves_the_role_unverifiable():
-    roles = simplify.to_roles([{"company_name": "Gamma", "title": "AI Engineer",
-                                "locations": ["SF"], "url": "https://gamma.com/careers/1"}])
+    roles = simplify.to_roles([{"company_name": "Example Co", "title": "AI Engineer",
+                                "locations": ["SF"], "url": "https://example.com/careers/1"}])
     assert roles[0].ats == "" and roles[0].token == ""
 
 

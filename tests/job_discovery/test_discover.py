@@ -40,8 +40,9 @@ def test_only_roles_inside_24h_are_reported(tmp_path):
 
 
 def test_roles_without_an_ats_timestamp_go_to_unverified_and_are_not_counted(tmp_path):
-    unverifiable = ats.Role(company="Gamma", title="AI Engineer", location="San Francisco, CA",
-                            work_mode="", url="https://gamma.com/careers/1", job_id="",
+    unverifiable = ats.Role(company="Example Co", title="AI Engineer",
+                            location="San Francisco, CA",
+                            work_mode="", url="https://example.com/careers/1", job_id="",
                             ats="", token="", posted_at=None, posted_kind="unknown",
                             description="", source="simplify")
     discover.run(roles=[role(2), unverifiable], tracker_rows=[], run_dir=tmp_path,

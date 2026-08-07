@@ -8,8 +8,8 @@ from jobdiscovery import seed_companies as sc
     ("https://boards.greenhouse.io/acme/jobs/4012345", ("greenhouse", "acme")),
     ("https://job-boards.greenhouse.io/acme/jobs/4012345?gh_src=abc", ("greenhouse", "acme")),
     ("https://jobs.lever.co/beta-co/2f1c-uuid", ("lever", "beta-co")),
-    ("https://jobs.ashbyhq.com/gamma/9d0e-uuid/application", ("ashby", "gamma")),
-    ("https://gamma.com/careers/123", None),
+    ("https://jobs.ashbyhq.com/exampleco/9d0e-uuid/application", ("ashby", "exampleco")),
+    ("https://example.com/careers/123", None),
     ("", None),
     # The ATS's own routing sitting where a company slug would. Reading "embed" as
     # a company merged three unrelated employers onto one board.
