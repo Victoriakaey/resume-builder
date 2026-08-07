@@ -12,6 +12,11 @@ tail. The rules are backed by 2026 research with sources and confidence tags, an
 writer/critic loop is built to resist its own failure modes — rubber-stamping overclaims,
 and the uniform-cadence "AI tells" a same-model loop tends to produce.
 
+## Subskills
+- `skills/job-discovery/` — finds fresh, ATS-verified roles and drafts the
+  per-role writing for review before anything is appended to a tracker; see
+  `skills/job-discovery/SKILL.md`.
+
 ## Structure
 - `SKILL.md` — the process and the rules.
 - `references/`

@@ -1,31 +1,41 @@
 # RESUME — resume-builder skill
 
-**Moment:** 2026-08-06, mid-session. Designing a new **`job-application` subskill**: an assistant
-that fills job-application forms in a browser and hands off to the human for resume upload and
-submission. The design has been through four approved sections and one adversarial cross-family
-review (`codex`). Nothing is implemented yet — only a design document exists, and **it is currently
-in the wrong repo** (see Next concrete action).
+**Moment:** 2026-08-07, mid-session, on branch `feat/job-discovery`. `job-application` shipped as a
+symlinked subskill (design doc landed, de-personalised halves built) and the plan moved on to
+`job-discovery`: a three-step system (Step 1 `discover.py` finds/verifies roles, Step 2 Claude fills
+prose per `SKILL.md`, Step 3 `append.py` appends reviewed rows to a tracker). Task 12 (the last task
+on the branch — mutation tests, the critic's own separation test, README mention, install) is
+**committed** at `a9b372f`. A post-review finding is being closed right now: `test_mutation.sh`'s
+`mutate()`/`mutate_doc()` helpers leave a mutated tracked file + a stray `.bak` behind if interrupted
+mid-run (no trap). Adding a `trap ... EXIT INT TERM` restore and verifying it under an actual `TERM`
+signal, not just by reasoning about it.
 
-> snapshot: HEAD `f8fbadc` · branch `main` · clean except one untracked file
-> Untracked: `docs/specs/2026-08-06-job-application-system-design.md`
+> snapshot: HEAD `a9b372f` · branch `feat/job-discovery` · working tree has one in-progress edit to
+> `tests/job_discovery/test_mutation.sh` (the trap fix, not yet committed)
 
 ## Next concrete action
 
-**Move the design doc out of this public repo.** It is saturated with adopter-specific content —
-personal legal/immigration situation, private product names, the tracker spreadsheet, and a list of
-employers applied to. That violates this repo's own standing rule (see Gotchas). Land it in the
-private repo's `docs/specs/` instead. Only the de-personalised halves belong here later:
+Finish the interrupt-safety fix in `tests/job_discovery/test_mutation.sh`: add the `MUTATING` /
+`restore_now` trap to both `mutate()` and `mutate_doc()`, rerun the harness to confirm `ALL PASS` +
+clean tree, then interrupt it mid-mutation with a real `TERM` and confirm the tracked source file
+comes back intact with no `.bak` left over. Append the fix report to
+`.superpowers/sdd/2026-08-06-job-discovery/task-12-report.md`, then commit
+(`scripts/check_no_personal.sh` on the staged files first — expect it to flag the pre-existing
+README `## License` line, which is not new, see Gotchas).
 
-- `skills/job-application/SKILL.md` — workflow and decision rules, no personal data
-- `references/ats-playbook.md` — per-ATS mechanics (person-independent)
-- `references/application-answers-template.md` — empty schema, mirroring the existing
-  `candidate-profile-template.md` / `dossier-template.md` pattern
+## Shipped previously (this branch, through Task 12 / commit `a9b372f`)
 
-## Shipped previously (committed at `f8fbadc`)
+`skills/job-discovery/` — `discover.py`, `dedup.py`, `freshness.py`, `writing_ledger.py`, `ledger.py`,
+`sheets.py`, `append.py`, `SKILL.md`. 145 pytest tests + 4 shell suites (`test_check_no_personal.sh`,
+`test_job_application_skill.sh`, `test_job_discovery_skill.sh`, `test_mutation.sh`) all green. The
+mutation harness proves 15 protected rules (8 code + 7 doc) actually fail the suite when broken — no
+holes. Symlinked into `~/.claude/skills/job-discovery`. README now has a `## Subskills` line pointing
+at it. The seven anti-AI critic criteria are still OPEN (deferred, not this branch's job) — the two
+letter fixtures for `test_critic_separation.md` are deliberately not built until they land.
 
-The `--cli` migration in `scripts/cold_read.py` that the last snapshot described as half-done is
-**finished and committed**. `CLI_SHAPES` is wired through `ask_cold_reader()` and a `--cli` argparse
-option threads into the run loop. A cold read can now be run by a non-Claude family.
+The `--cli` migration in `scripts/cold_read.py` (older work, `main` branch) is also finished and
+committed. `CLI_SHAPES` is wired through `ask_cold_reader()` and a `--cli` argparse option threads
+into the run loop. A cold read can now be run by a non-Claude family.
 
 ## Design decisions worth not re-deriving (job-application subskill)
 
@@ -85,6 +95,16 @@ look for; it means the reference is doing its job.**
   `codebuddy`; not re-verified this session.)
 - Don't recount motifs with `grep '^- **Tags**:' | grep -c` — returns 0 under the local rtk proxy
   (false negative). Use python.
+- **`scripts/check_no_personal.sh` on `README.md` always flags 3 `LEAK` lines on the `## License`
+  line** — that's the account holder's own copyright attribution (three of the name patterns in
+  `scripts/personal-patterns.txt`, spelled out there, not repeated here), present since the repo's
+  first commit (`b4aeab5`, 2026-07-14), and explicitly called out as intentional in that file's own
+  header comment. Not a regression; don't "fix" it without being asked.
+- **Task 12's brief had two stale sed patterns** (mutations targeting `claimed_total` / a
+  `summary_range` print in `sheets.py`) written against a service-account-era design later replaced
+  by the Apps-Script `TrackerClient` (commit `b5b3d00`). A verbatim sed expression that matches
+  nothing in the current file is a silent no-op — always check a brief's literal code blocks against
+  current source before trusting them, the same discipline the mutation harness enforces on itself.
 
 ## Backlog state
 

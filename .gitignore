@@ -1,3 +1,7 @@
 .DS_Store
 __pycache__/
 *.pyc
+# tests/job_discovery/test_mutation.sh writes <file>.bak while a mutation is
+# applied. Its trap restores them, but a SIGKILL kills the trap too, and the
+# leftover must not read as a file someone forgot to add.
+*.bak

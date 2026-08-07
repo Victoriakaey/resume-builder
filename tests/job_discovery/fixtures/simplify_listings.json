@@ -1,0 +1,373 @@
+[
+  {
+    "date_updated": 1765398188,
+    "sponsorship": "Offers Sponsorship",
+    "active": true,
+    "degrees": [],
+    "url": "https://job-boards.greenhouse.io/twitch/jobs/8329910002",
+    "company_name": "Twitch",
+    "title": "Software Engineer I, Frontend",
+    "locations": [
+      "Irvine, CA"
+    ],
+    "category": "Software Engineering",
+    "source": "AlmondCroffle",
+    "id": "754c8f8f-f93d-4463-9646-bcead1b191ab",
+    "date_posted": 1765390570,
+    "company_url": "",
+    "is_visible": false
+  },
+  {
+    "date_updated": 1765398273,
+    "sponsorship": "Does Not Offer Sponsorship",
+    "active": true,
+    "degrees": [],
+    "url": "https://job-boards.greenhouse.io/baselayer/jobs/5023884008",
+    "company_name": "Baselayer",
+    "title": "Junior Backend Engineer",
+    "locations": [
+      "San Francisco, CA"
+    ],
+    "category": "Software Engineering",
+    "source": "AlmondCroffle",
+    "id": "b5d1235d-e913-47e7-b2f2-110d950a919a",
+    "date_posted": 1765390667,
+    "company_url": "",
+    "is_visible": false
+  },
+  {
+    "source": "Simplify",
+    "category": "Software",
+    "company_name": "ShipBob",
+    "id": "579fd96a-2def-4909-8c81-e0dd82699d2e",
+    "title": "Forward Deployed Engineer",
+    "active": false,
+    "date_updated": 1765410196,
+    "date_posted": 1765410196,
+    "url": "https://job-boards.greenhouse.io/shipbobinc/jobs/4638574005",
+    "locations": [
+      "Remote in USA"
+    ],
+    "company_url": "https://simplify.jobs/c/ShipBob",
+    "is_visible": true,
+    "sponsorship": "Other",
+    "degrees": []
+  },
+  {
+    "source": "Simplify",
+    "category": "Software",
+    "company_name": "SpaceX",
+    "id": "1e25cb07-378a-4b10-83a9-5df03df09866",
+    "title": "Software Engineer - Simulations - Application Software",
+    "active": false,
+    "date_updated": 1765408969,
+    "date_posted": 1765408969,
+    "url": "https://boards.greenhouse.io/spacex/jobs/8330100002",
+    "locations": [
+      "West Athens, CA"
+    ],
+    "company_url": "https://simplify.jobs/c/SpaceX",
+    "is_visible": true,
+    "sponsorship": "Other",
+    "degrees": []
+  },
+  {
+    "source": "Simplify",
+    "category": "AI/ML/Data",
+    "company_name": "Olsson",
+    "id": "cd99cec9-7d87-4279-93e1-bbc4050f507d",
+    "title": "Entry-Level Field Geologist",
+    "active": false,
+    "date_updated": 1765497162,
+    "date_posted": 1765497162,
+    "url": "https://job-boards.greenhouse.io/olsson/jobs/5031025008",
+    "locations": [
+      "Oklahoma City, OK",
+      "Olathe, KS"
+    ],
+    "company_url": "https://simplify.jobs/c/Olsson",
+    "is_visible": true,
+    "sponsorship": "Other",
+    "degrees": []
+  },
+  {
+    "source": "Simplify",
+    "category": "Software",
+    "company_name": "Mechanize",
+    "id": "20fe605e-9125-4857-b077-cf256888994c",
+    "title": "Software Engineer",
+    "active": false,
+    "date_updated": 1767841111,
+    "date_posted": 1767841111,
+    "url": "https://jobs.ashbyhq.com/mechanize/1ef28bb2-6251-4da6-a590-a4a7606368cb/application",
+    "locations": [
+      "SF"
+    ],
+    "company_url": "https://simplify.jobs/c/Mechanize",
+    "is_visible": true,
+    "sponsorship": "Other",
+    "degrees": []
+  },
+  {
+    "source": "Simplify",
+    "category": "Product",
+    "company_name": "Cartesia",
+    "id": "0f6c5b00-7b7a-45a7-8e1a-62e3f456d631",
+    "title": "Product Operations Analyst",
+    "active": false,
+    "date_updated": 1765494902,
+    "date_posted": 1765494902,
+    "url": "https://jobs.ashbyhq.com/cartesia/dafe489f-2af2-4355-b6d7-241b6a97179a/application",
+    "locations": [
+      "SF"
+    ],
+    "company_url": "https://simplify.jobs/c/Cartesia",
+    "is_visible": true,
+    "sponsorship": "Other",
+    "degrees": []
+  },
+  {
+    "source": "Simplify",
+    "category": "Software",
+    "company_name": "Matic",
+    "id": "bf1be2c5-3e07-48b2-8d3b-373aeffdfde5",
+    "title": "Backend Software Engineer",
+    "active": false,
+    "date_updated": 1765505888,
+    "date_posted": 1765505888,
+    "url": "https://jobs.ashbyhq.com/MaticRobots/230e365c-de86-4f7b-b971-2d25a021b0d4/application",
+    "locations": [
+      "Mountain View, CA"
+    ],
+    "company_url": "https://simplify.jobs/c/MaticRobots",
+    "is_visible": true,
+    "sponsorship": "Other",
+    "degrees": []
+  },
+  {
+    "source": "Simplify",
+    "category": "Software",
+    "company_name": "Jerry",
+    "id": "b5c100b1-fb86-40d1-b5d6-9862d5507439",
+    "title": "Software Engineer 1",
+    "active": false,
+    "date_updated": 1765581582,
+    "date_posted": 1765581582,
+    "url": "https://jobs.ashbyhq.com/jerry.ai/8d7d1ef7-6246-493d-8683-a5b20bf70267/application",
+    "locations": [
+      "Toronto, ON, Canada"
+    ],
+    "company_url": "https://simplify.jobs/c/Jerry",
+    "is_visible": true,
+    "sponsorship": "Other",
+    "degrees": [
+      "Bachelor's"
+    ]
+  },
+  {
+    "source": "Simplify",
+    "category": "AI/ML/Data",
+    "company_name": "GoodShip",
+    "id": "01d82d26-2648-4002-afe8-d9fbfbcf4156",
+    "title": "Platform Data Analyst",
+    "active": false,
+    "date_updated": 1765782968,
+    "date_posted": 1765782968,
+    "url": "https://jobs.ashbyhq.com/goodship/68c69cb3-a256-4292-86f5-e027619e0f66/application",
+    "locations": [
+      "Remote in USA"
+    ],
+    "company_url": "https://simplify.jobs/c/GoodShip",
+    "is_visible": true,
+    "sponsorship": "Other",
+    "degrees": []
+  },
+  {
+    "source": "Simplify",
+    "category": "Software",
+    "company_name": "Whoop",
+    "id": "acd8252f-d339-4122-aef7-4c65e5952c6f",
+    "title": "Software Engineer 1 - Backend - Healthcare",
+    "active": false,
+    "date_updated": 1765407988,
+    "date_posted": 1765407988,
+    "url": "https://jobs.lever.co/whoop/02b3ba78-ccb4-40a4-94b3-6b14c71eed9e/apply",
+    "locations": [
+      "Boston, MA"
+    ],
+    "company_url": "https://simplify.jobs/c/Whoop",
+    "is_visible": true,
+    "sponsorship": "Other",
+    "degrees": []
+  },
+  {
+    "source": "Simplify",
+    "category": "Software",
+    "company_name": "CompassX Group",
+    "id": "e68e1e4a-c341-4c22-8070-bca60715535f",
+    "title": "Software Engineer",
+    "active": false,
+    "date_updated": 1765408580,
+    "date_posted": 1765408580,
+    "url": "https://jobs.lever.co/compassx/a37f62e9-f2fc-4d1a-9d67-5b7778abefdb/apply",
+    "locations": [
+      "Remote in USA"
+    ],
+    "company_url": "https://simplify.jobs/c/CompassX-Group",
+    "is_visible": true,
+    "sponsorship": "Other",
+    "degrees": []
+  },
+  {
+    "source": "Simplify",
+    "category": "AI/ML/Data",
+    "company_name": "Tinder",
+    "id": "20a8a792-fa8b-4398-a480-f0c4932ee0c2",
+    "title": "Data Scientist 2 - Growth",
+    "active": false,
+    "date_updated": 1765581348,
+    "date_posted": 1765581348,
+    "url": "https://jobs.lever.co/matchgroup/aff4cec0-abaf-44bc-adfc-e99e740f5c3a/apply",
+    "locations": [
+      "Palo Alto, CA",
+      "SF",
+      "LA",
+      "Dallas, TX"
+    ],
+    "company_url": "https://simplify.jobs/c/Tinder",
+    "is_visible": true,
+    "sponsorship": "Other",
+    "degrees": []
+  },
+  {
+    "source": "Simplify",
+    "category": "Software",
+    "company_name": "Inductive Automation",
+    "id": "73ace80e-0da4-402a-9c55-af8eab12c79a",
+    "title": "Software Engineer 1",
+    "active": false,
+    "date_updated": 1765581362,
+    "date_posted": 1765581362,
+    "url": "https://jobs.lever.co/inductiveautomation/6d0dff06-a258-4b8e-9bb9-b83eec0bd5b1/apply",
+    "locations": [
+      "Folsom, CA"
+    ],
+    "company_url": "https://simplify.jobs/c/InductiveAutomation",
+    "is_visible": true,
+    "sponsorship": "Other",
+    "degrees": []
+  },
+  {
+    "source": "Simplify",
+    "category": "Software",
+    "company_name": "ION Group",
+    "id": "a32d8e14-2e43-42c1-accf-75de3b3a7232",
+    "title": "Software Developer - 2026 Leadership Development Program - Houston",
+    "active": false,
+    "date_updated": 1765469543,
+    "date_posted": 1765469543,
+    "url": "https://jobs.lever.co/ion/beb910e6-7ad4-4c72-9b6d-f2666a7ed4aa/apply",
+    "locations": [
+      "Houston, TX"
+    ],
+    "company_url": "https://simplify.jobs/c/ION-Group",
+    "is_visible": true,
+    "sponsorship": "Other",
+    "degrees": []
+  },
+  {
+    "source": "Simplify",
+    "category": "Software",
+    "company_name": "Cerebras",
+    "id": "77721052-61c2-44be-ba90-f79d2be3dc11",
+    "title": "Codesign & Nextgen \u2013 New College Grad",
+    "active": false,
+    "date_updated": 1767771953,
+    "date_posted": 1767771953,
+    "url": "https://boards.greenhouse.io/embed/job_app?token=7580399003",
+    "locations": [
+      "Sunnyvale, CA"
+    ],
+    "company_url": "https://simplify.jobs/c/Cerebras-Systems",
+    "is_visible": true,
+    "sponsorship": "Other",
+    "degrees": [
+      "Bachelor's",
+      "Master's"
+    ]
+  },
+  {
+    "source": "Simplify",
+    "category": "Hardware",
+    "company_name": "KBR",
+    "id": "23f16a16-62fd-48a0-8c00-7e597fbd8d50",
+    "title": "Associate Tool & Gage Technician",
+    "active": false,
+    "date_updated": 1765387160,
+    "date_posted": 1765387160,
+    "url": "https://kbr.wd5.myworkdayjobs.com/KBR_Careers/job/Phoenix-Arizona/Associate-Tool---Gage-Technician_R2116317",
+    "locations": [
+      "Phoenix, AZ"
+    ],
+    "company_url": "https://simplify.jobs/c/KBR",
+    "is_visible": true,
+    "sponsorship": "Other",
+    "degrees": []
+  },
+  {
+    "date_updated": 1765398304,
+    "sponsorship": "U.S. Citizenship is Required",
+    "active": true,
+    "degrees": [],
+    "url": "https://boeing.wd1.myworkdayjobs.com/en-US/external_careers/job/F18-Flight-Simulation---Associate-Software-Technical-Analyst_JR2025486201-1",
+    "company_name": "Boeing",
+    "title": "F18 Flight Simulation \u2013 Associate Software Technical Analyst",
+    "locations": [
+      "Berkeley, M"
+    ],
+    "category": "Software Engineering",
+    "source": "AlmondCroffle",
+    "id": "cb776c25-3773-47aa-9af3-7d6dd9c44a68",
+    "date_posted": 1765390785,
+    "company_url": "",
+    "is_visible": false
+  },
+  {
+    "date_updated": 1765398587,
+    "sponsorship": "Offers Sponsorship",
+    "active": true,
+    "degrees": [],
+    "url": "https://disney.wd5.myworkdayjobs.com/en-US/disneycareerdc/job/Bristol-CT-USA/Software-Engineer-I_10137037",
+    "company_name": "Disney",
+    "title": "Software Engineer I",
+    "locations": [
+      "Bristol, CT"
+    ],
+    "category": "Software Engineering",
+    "source": "AlmondCroffle",
+    "id": "a0765687-b194-4e84-9eb7-4b4f86a66d3c",
+    "date_posted": 1765391104,
+    "company_url": "",
+    "is_visible": false
+  },
+  {
+    "date_updated": 1772205536,
+    "sponsorship": "Other",
+    "active": false,
+    "degrees": [
+      "Master's"
+    ],
+    "url": "https://generalmotors.wd5.myworkdayjobs.com/en-US/Careers_GM/job/Mountain-View-California-United-States-of-America/Applied-Scientist---AI---Robotics--PhD----Early-Career_JR-202523975",
+    "company_name": "General Motors",
+    "title": "Applied Scientist - AI & Robotics (PhD) - Early Career",
+    "locations": [
+      "Mountain View, CA"
+    ],
+    "category": "Data Science, AI & Machine Learning",
+    "source": "AlmondCroffle",
+    "id": "e9d8bb3d-b3cd-4c23-88e3-68dd6b879dce",
+    "date_posted": 1765391380,
+    "company_url": "",
+    "is_visible": true
+  }
+]
