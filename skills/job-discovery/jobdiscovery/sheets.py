@@ -18,6 +18,7 @@ import json, pathlib
 import requests
 
 COLUMNS = [chr(c) for c in range(ord("A"), ord("R") + 1)]  # A..R, 18 columns
+ROW_NUMBER = "_row"
 
 
 class IncompleteReadError(RuntimeError):
@@ -65,7 +66,7 @@ class TrackerClient:
             raise EndpointError(f"{action}: {payload.get('error', 'no reason given')}")
         return payload
 
-    def read_tracker(self) -> list[dict[str, str]]:
+    def read_tracker(self) -> list[dict[str, str | int]]:
         payload = self._call("read")
         rows = rows_from_values(payload.get("rows", []))
         # Count first, then drop blanks. The completeness check exists to catch a
@@ -76,7 +77,13 @@ class TrackerClient:
         # truncated, which is the check crying wolf about the sheet's contents
         # rather than about the read.
         assert_complete_read(len(rows), payload["lastRow"], payload["firstDataRow"])
-        return [r for r in rows if any(v.strip() for v in r.values())]
+        # Stamp the real sheet row while the list is still positionally exact —
+        # once blank rows are dropped below, position in the list no longer means
+        # anything, and there is nowhere downstream that can recover this number.
+        first = int(payload["firstDataRow"])
+        for offset, row in enumerate(rows):
+            row[ROW_NUMBER] = first + offset
+        return [r for r in rows if any(r[column].strip() for column in COLUMNS)]
 
     def append_rows(self, rows: list[list[str]]) -> int:
         if not rows:

@@ -15,6 +15,8 @@ from __future__ import annotations
 import dataclasses, re
 from urllib.parse import urlsplit
 
+from jobdiscovery import sheets   # for ROW_NUMBER only; no network call is made here
+
 LOCATION_NOISE = re.compile(r"\((?:[^)]*)\)|[-–—]\s*(remote|hybrid|on-?site).*$", re.I)
 PUNCT = re.compile(r"[^a-z0-9 ]+")
 SPACES = re.compile(r"\s+")
@@ -59,14 +61,16 @@ class Index:
         self.by_title: dict[str, tuple[int, str]] = {}
 
     @classmethod
-    def from_rows(cls, rows: list[dict[str, str]], first_data_row: int) -> "Index":
-        """first_data_row is required on purpose. It carried a default of 6 while
-        the sheet's data actually starts at row 5, and every matched_row this
-        index reported was off by one for two days before anyone noticed. The
-        caller holds the config; a default here can only ever disagree with it."""
+    def from_rows(cls, rows: list[dict[str, str | int]]) -> "Index":
+        """The row number is read off the row, never counted. Counting needs a
+        first_data_row the caller has to supply correctly (it carried a default of
+        6 while the sheet starts at 5, and every matched_row was off by one for two
+        days) and it drifts anyway by however many blank rows sit above the match.
+        sheets.read_tracker stamps ROW_NUMBER while the list is still positionally
+        exact, so there is nothing left here to get wrong."""
         index = cls()
-        for offset, row in enumerate(rows):
-            row_number = first_data_row + offset
+        for row in rows:
+            row_number = int(row[sheets.ROW_NUMBER])
             url = canonical_url(row.get("B", ""))
             if url:
                 index.by_url.setdefault(url, row_number)
