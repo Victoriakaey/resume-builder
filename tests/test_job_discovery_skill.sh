@@ -27,5 +27,7 @@ want "names both evidence sources"                  "dossier\.md"
 want "names the answer store too"                   "application-answers\.md"
 want "marks the seven criteria as still open"       "rubric[^\n]*open, not yet supplied"
 want "forbids inventing the criteria"               "do not invent them|never invent them"
+want "states which sections gate the append"        "notes. is optional; the other four sections gate the append"
+want "names unverified/ and the flag that reads it" "reads .unverified/. only with .--include-unverified."
 
 if [ "$fails" -eq 0 ]; then echo "ALL PASS"; else echo "$fails FAILED"; exit 1; fi

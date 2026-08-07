@@ -140,5 +140,7 @@ mutate_doc "skill: OPEN rubric marker deleted"        '/OPEN, not yet supplied/d
 mutate_doc "skill: do-not-invent rule deleted"        '/[Dd]o not invent them/d'
 mutate_doc "skill: dossier source deleted"            '/dossier\.md/d'
 mutate_doc "skill: answer-store source deleted"       '/application-answers\.md/d'
+mutate_doc "skill: notes-is-optional rule deleted"    '/the other four sections gate the append/d'
+mutate_doc "skill: unverified/ and its flag deleted"  '/only with `--include-unverified`/d'
 
 if [ "$fails" -eq 0 ]; then echo "ALL PASS"; else echo "$fails FAILED"; exit 1; fi

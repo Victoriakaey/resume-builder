@@ -17,9 +17,13 @@ attestation. It stops at appending rows to a spreadsheet.
 You need two private inputs, neither of which lives in this repo.
 
 1. **The discovery config** that `jobdiscovery.discover` and `jobdiscovery.append`
-   read (spreadsheet id, tab name, service-account key path) — see
-   `jobdiscovery/config.py`. It is found via the `JOB_DISCOVERY_CONFIG`
-   environment variable, or the default path that module names. If it is not
+   read — see `jobdiscovery/config.py` for the full key list. It holds the
+   spreadsheet id, the tab name, where the sheet's data starts, the path to the
+   credentials for the web-app endpoint the tracker is reached through
+   (`webapp_credentials` — an HTTP endpoint, not a service-account key), the path
+   to `companies.yaml`, and where run directories are written. It is found via
+   the `JOB_DISCOVERY_CONFIG` environment variable, falling back to
+   `~/.config/job-discovery/config.yaml`. There is no other default. If it is not
    where you expect, ask — do not guess a spreadsheet id.
 2. **The private answer store** `job-application` already uses for its settled
    answers — `docs/dossier.md` and `docs/application-answers.md`. This is Step
@@ -30,16 +34,44 @@ You need two private inputs, neither of which lives in this repo.
 
 ## The three steps
 
-1. `python3 -m jobdiscovery.discover` — writes `roles/*.md` and `run.json`.
+1. `python3 -m jobdiscovery.discover [--run-id ID]` — writes a run directory.
 2. **You**, this skill: fill the prose sections of every `roles/*.md`.
-3. `python3 -m jobdiscovery.append` — appends the rows. Only after the human has
-   reviewed.
+3. `python3 -m jobdiscovery.append --run-id ID` — appends the rows. Only after
+   the human has reviewed.
+
+The three steps talk only through files on disk, and each run directory holds:
+
+- `roles/*.md` — one file per role that is ATS-verified, inside the 24-hour
+  window, and not already in the tracker. **This is the run's yield, and it is
+  what you write.**
+- `unverified/*.md` — leads from the public listings repo, which suggests roles
+  but never establishes when one was posted. They carry no timestamp, so they are
+  not verified, not counted in the yield, and not your job unless the human says
+  so. Step 3 reads `unverified/` only with `--include-unverified`.
+- `run.json` — the account of what the run did: the yield, every source and
+  whether it answered, every role dropped and the key it matched, every role
+  filtered out and why, everything verified but outside the window, and every
+  role flagged for a human to look at. **Never edit it.** Step 1 is its only
+  writer, because a ledger a later step can revise is not evidence.
+
+Step 3 takes two flags worth knowing: `--dry-run`, which prints what would be
+appended and writes nothing, and `--include-unverified`. Run `--dry-run` first.
+
+A fact the board did not state is written as the literal `unknown` — in the
+front matter and, for a lead with no job description to score, in the Fit Score
+cell. That is a gap the human can see, not a mistake to fill in.
 
 ## Your job is Step 2, and only Step 2
 
 Fill five sections per role file: `cover_letter` (250–350 words),
 `why_interested` (110–150 words), `why_it_fits`, `resume_tailoring`, and `notes`
 (for a YC company, a 60–100 word message to the founders).
+
+`notes` is optional; the other four sections gate the append. A role whose
+`notes` you leave empty still appends; a role missing any of the other four is
+held back and named in Step 3's skip list, because half a review in the tracker
+is worse than one that waits a round. Padding `notes` to look complete is worse
+than leaving it blank.
 
 **Write prose only. Never edit the YAML front matter.** Those facts came from the
 employer's ATS. Restating them is how the previous version of this system was
