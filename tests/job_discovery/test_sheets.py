@@ -91,7 +91,16 @@ def test_missing_url_or_token_key_entirely_raises_endpoint_error(tmp_path):
         sheets.TrackerClient(cfg, session=_FakeSession({}))
 
 
-def test_read_tracker_drops_wholly_blank_rows_before_the_completeness_check(tmp_path):
+def test_read_tracker_counts_the_raw_read_before_dropping_blank_rows(tmp_path):
+    """The live tracker's exact shape: the endpoint's raw row count matches its
+    stated extent exactly, but two of those rows are wholly blank. Counting
+    after filtering would misread that as a short read — this is the bug the
+    live check actually hit. Counting the raw read first, then dropping blanks
+    from what's returned, reads it clean.
+
+    If the completeness check ran on the filtered count instead, this payload
+    would raise IncompleteReadError (2 real rows < 3 expected) instead of
+    returning 2 rows cleanly — that's the behaviour this test pins."""
     payload = {
         "ok": True,
         "rows": [
@@ -99,11 +108,11 @@ def test_read_tracker_drops_wholly_blank_rows_before_the_completeness_check(tmp_
             [""] * 18,
             ["Applied", "https://x/2"] + [""] * 16,
         ],
-        "lastRow": 6,
+        "lastRow": 7,
         "firstDataRow": 5,
     }
     client = sheets.TrackerClient(_credentials(tmp_path), session=_FakeSession(payload))
-    rows = client.read_tracker()
+    rows = client.read_tracker()  # must not raise
     assert len(rows) == 2
     assert rows[0]["B"] == "https://x/1"
     assert rows[1]["B"] == "https://x/2"

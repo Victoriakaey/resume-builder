@@ -68,9 +68,15 @@ class TrackerClient:
     def read_tracker(self) -> list[dict[str, str]]:
         payload = self._call("read")
         rows = rows_from_values(payload.get("rows", []))
-        rows = [r for r in rows if any(v.strip() for v in r.values())]
+        # Count first, then drop blanks. The completeness check exists to catch a
+        # short read, and the endpoint returns every row in [firstDataRow, lastRow]
+        # by construction — so it is the raw count that has to agree with the
+        # sheet's extent. The live tracker really does hold two wholly-blank rows
+        # inside its range; filtering before counting reported every read of it as
+        # truncated, which is the check crying wolf about the sheet's contents
+        # rather than about the read.
         assert_complete_read(len(rows), payload["lastRow"], payload["firstDataRow"])
-        return rows
+        return [r for r in rows if any(v.strip() for v in r.values())]
 
     def append_rows(self, rows: list[list[str]]) -> int:
         if not rows:
