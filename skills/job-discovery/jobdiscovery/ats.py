@@ -1,11 +1,10 @@
 #!/usr/bin/env python3
 """Per-ATS adapters that flatten a public job board into one Role shape.
 
-The field paths in FIELDS are transcribed from the fixtures recorded in
-tests/job_discovery/fixtures/{greenhouse,ashby,lever}_board.json. If an
-adapter stops finding a timestamp, the fix is to re-probe and update these
-paths — never to fall back to "now", which would turn a stale posting into
-a fresh one.
+The field paths in FIELDS are transcribed from the recorded board fixtures in
+tests/job_discovery/fixtures/. If an adapter stops finding a timestamp, the
+fix is to re-probe and update these paths — never to fall back to "now",
+which would turn a stale posting into a fresh one.
 """
 from __future__ import annotations
 import dataclasses, datetime as dt
@@ -30,28 +29,38 @@ class Role:
 
 # Transcribed from the recorded fixtures. list_path: where the postings live in
 # the payload ("" means the payload is itself the list). Each *_path is a
-# dotted path inside one posting. Ashby has no updatedAt field at all — its
-# updated_path is "" on purpose, not a placeholder.
+# dotted path inside one posting; "" means this ATS has no such field. Ashby
+# has no updatedAt field at all — its updated_path is "" on purpose, not a
+# placeholder.
 FIELDS: dict[str, dict[str, Any]] = {
     "greenhouse": {
         "list_path": "jobs",
         "id_path": "id", "title_path": "title", "url_path": "absolute_url",
         "location_path": "location.name", "description_path": "content",
         "published_path": "first_published", "updated_path": "updated_at",
+        "workplace_path": "",          # Greenhouse states no workplace type
     },
     "ashby": {
         "list_path": "jobs",
         "id_path": "id", "title_path": "title", "url_path": "jobUrl",
         "location_path": "location", "description_path": "descriptionPlain",
         "published_path": "publishedAt", "updated_path": "",
+        "workplace_path": "workplaceType",     # "OnSite" | "Hybrid" | "Remote"
     },
     "lever": {
         "list_path": "",
         "id_path": "id", "title_path": "text", "url_path": "hostedUrl",
         "location_path": "categories.location", "description_path": "descriptionPlain",
         "published_path": "createdAt", "updated_path": "",
+        "workplace_path": "workplaceType",     # "onsite" | "hybrid" | "remote"
     },
 }
+
+# The three values I may hold, keyed by the lowercased form of whatever the ATS
+# states. An unrecognised value is not coerced — it falls through to the text
+# reading, so a new vocabulary shows up as a wrong guess to fix rather than as
+# a silent "On-site".
+WORKPLACE = {"onsite": "On-site", "on-site": "On-site", "hybrid": "Hybrid", "remote": "Remote"}
 
 
 def _dig(obj: Any, path: str) -> Any:
@@ -79,7 +88,20 @@ def _parse_time(value: Any) -> dt.datetime | None:
     return parsed if parsed.tzinfo else parsed.replace(tzinfo=dt.timezone.utc)
 
 
-def _work_mode(location: str, description: str) -> str:
+def _work_mode(stated: Any, location: str, description: str) -> str:
+    """What the board says, and only failing that, what its prose suggests.
+
+    Ashby and Lever state the workplace type outright — 63 of the 70 boards — so
+    reading it out of the location string there would be guessing past a real
+    signal, the same mistake `freshness` refuses to make with timestamps. A Lever
+    posting really does carry `workplaceType: "hybrid"` alongside the location
+    `"San Francisco, CA / Remote"`, and the text reading gets it wrong. Greenhouse
+    states nothing, so there the text is all there is.
+    """
+    if stated:
+        resolved = WORKPLACE.get(str(stated).strip().lower())
+        if resolved:
+            return resolved
     blob = f"{location} {description}".lower()
     if "remote" in blob and "hybrid" not in blob:
         return "Remote"
@@ -104,9 +126,10 @@ def parse_board(ats_name: str, token: str, company: str, payload: Any) -> list[R
             posted_at, kind = None, "unknown"
         location = str(_dig(posting, spec["location_path"]) or "")
         description = str(_dig(posting, spec["description_path"]) or "")
+        stated_mode = _dig(posting, spec["workplace_path"])
         roles.append(Role(
             company=company, title=str(_dig(posting, spec["title_path"]) or ""),
-            location=location, work_mode=_work_mode(location, description),
+            location=location, work_mode=_work_mode(stated_mode, location, description),
             url=str(_dig(posting, spec["url_path"]) or ""),
             job_id=str(_dig(posting, spec["id_path"]) or ""),
             ats=ats_name, token=token, posted_at=posted_at, posted_kind=kind,
