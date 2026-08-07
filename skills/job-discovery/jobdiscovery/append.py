@@ -28,6 +28,10 @@ def collect(run_dir, include_unverified: bool = False) -> tuple[list, list[dict]
     in the run its turn.
     """
     run_dir = pathlib.Path(run_dir)
+    # A typo in --run-id would otherwise report "0 rows would be appended", which
+    # reads as "nothing to do" rather than "you named a run that does not exist".
+    if not run_dir.is_dir():
+        raise FileNotFoundError(f"no such run directory: {run_dir}")
     directories = [run_dir / "roles"] + ([run_dir / "unverified"] if include_unverified else [])
     parsed: list[rolefile.RoleFile] = []
     unreadable: list[dict] = []
@@ -45,13 +49,7 @@ def plan(collected: tuple[list, list[dict]], tracker_rows) -> tuple[list, list[d
 
     Takes `collect()`'s own return value directly, so a file `rolefile.parse`
     refused is folded into the skip list here rather than by every caller
-    re-doing that bookkeeping. Note this does not dedupe two role files in the
-    same run against each other — `seen` is built once from `tracker_rows` and
-    never grows as `to_append` does, so two role files sharing a canonical URL
-    in the same run both pass and both get appended. Deliberately left as-is
-    rather than fixed here: Step 1 already dedupes by URL before writing role
-    files, so this path is not expected to fire in practice, and closing it
-    blind is a decision for whoever reviews this, not a silent addition.
+    re-doing that bookkeeping.
     """
     role_files, unreadable = collected
     seen = {dedup.canonical_url(row.get("B", "")) for row in tracker_rows}
@@ -62,7 +60,8 @@ def plan(collected: tuple[list, list[dict]], tracker_rows) -> tuple[list, list[d
         if marker.exists():
             skipped.append({"file": str(entry.path), "reason": "already appended"})
             continue
-        if dedup.canonical_url(entry.fields.get("B", "")) in seen:
+        url = dedup.canonical_url(entry.fields.get("B", ""))
+        if url in seen:
             skipped.append({"file": str(entry.path), "reason": "already in the sheet"})
             continue
         # notes is optional; the other four are the review itself, so only
@@ -74,6 +73,12 @@ def plan(collected: tuple[list, list[dict]], tracker_rows) -> tuple[list, list[d
                             "reason": f"empty prose section(s): {', '.join(missing)}"})
             continue
         to_append.append(entry)
+        # Grow the seen-set as the batch grows. Two files in one run directory
+        # pointing at the same posting would otherwise both pass every gate, both
+        # land in the single append call, and both get a valid marker — so no
+        # later run could ever detect the duplicate, let alone undo it. Step 1
+        # dedupes within a run, but a hand-copied run directory does not.
+        seen.add(url)
     return to_append, skipped
 
 

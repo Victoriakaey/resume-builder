@@ -123,3 +123,27 @@ def test_a_malformed_file_is_skipped_by_name_while_the_good_one_still_appends(tm
     to_append, skipped = append.plan(append.collect(run_dir), [])
     assert len(to_append) == 1 and to_append[0].path.name == "acme-ai-engineer.md"
     assert any(entry["file"].endswith("acme-broken-role.md") for entry in skipped)
+
+
+def test_two_role_files_sharing_a_canonical_url_append_once_and_skip_the_second(tmp_path):
+    run_dir = a_run(tmp_path)
+    # Sorted after "acme-ai-engineer.md" (collect() walks the directory in sorted
+    # order), so the original from a_run() is the one that appends and this one
+    # is the "second" the rule is meant to catch — not an artifact of glob order.
+    dupe_path = run_dir / "roles" / "acme-dupe-posting.md"
+    rolefile.write(dupe_path,
+                   a_role(job_id="1", url="https://boards.greenhouse.io/acme/jobs/1?gh_src=y"),
+                   fit=8, confidence="High", age_hours=30.0, run_date=dt.date(2026, 8, 6))
+    text = dupe_path.read_text()
+    for name in append.REQUIRED_SECTIONS:
+        text = text.replace(f"## {name}\n\n", f"## {name}\n\nreviewed {name}\n")
+    dupe_path.write_text(text)
+    to_append, skipped = append.plan(append.collect(run_dir), [])
+    assert len(to_append) == 1 and to_append[0].path.name == "acme-ai-engineer.md"
+    assert any(entry["file"].endswith("acme-dupe-posting.md") and
+               entry["reason"] == "already in the sheet" for entry in skipped)
+
+
+def test_a_run_id_naming_a_missing_directory_raises_rather_than_reports_zero(tmp_path):
+    with pytest.raises(FileNotFoundError):
+        append.collect(tmp_path / "no-such-run")
