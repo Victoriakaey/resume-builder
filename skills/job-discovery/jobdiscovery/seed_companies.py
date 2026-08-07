@@ -24,7 +24,9 @@ PATTERNS = [
 # in the SimplifyJobs listings take that shape, and reading "embed" as the company
 # collapsed Chewy, Squarepoint and Cerebras onto a single bogus board. Returning
 # None costs one unresolvable lead; guessing costs a dedup key that merges
-# unrelated employers.
+# unrelated employers. Applied across all three ATS hosts, not just Greenhouse
+# where the evidence was found — a company whose slug is literally "jobs" is a
+# lead we would rather lose than a collision we would rather not debug.
 NON_TOKENS = {"embed", "job_app", "jobs", "job"}
 
 

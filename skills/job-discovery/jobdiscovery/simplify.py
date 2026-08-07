@@ -32,7 +32,17 @@ def fetch(cache_dir: pathlib.Path) -> list[dict]:
             f"{listings} not found — the repo moved its machine-readable listings. "
             "Re-locate it and update LISTINGS_PATH."
         )
-    return json.loads(listings.read_text())
+    data = json.loads(listings.read_text())
+    # A file that is still there but no longer a bare array — wrapped as
+    # {"jobs": [...]}, say — would otherwise reach to_roles, which would iterate
+    # the dict's keys and fail on a string with no .get(). Refuse here, where the
+    # message can name the file that changed shape.
+    if not isinstance(data, list):
+        raise TypeError(
+            f"{listings} is a {type(data).__name__}, not a list of listings — the "
+            "repo changed the file's shape. Re-read it and update fetch()."
+        )
+    return data
 
 
 def to_roles(listings: list[dict]) -> list[ats.Role]:
@@ -45,7 +55,8 @@ def to_roles(listings: list[dict]) -> list[ats.Role]:
         roles.append(ats.Role(
             company=str(item.get("company_name") or ""),
             title=str(item.get("title") or ""),
-            location=", ".join(locations) if isinstance(locations, list) else str(locations),
+            location=(", ".join(str(place) for place in locations)
+                      if isinstance(locations, list) else str(locations)),
             work_mode="", url=url, job_id=str(item.get("id") or ""),
             ats=ats_name, token=token,
             posted_at=None, posted_kind="unknown",
