@@ -70,8 +70,20 @@ def test_a_missing_required_field_raises(tmp_path):
         rolefile.parse(path)
 
 
-def test_an_unknown_prose_section_raises(tmp_path):
+def test_a_heading_inside_prose_is_prose_not_a_section(tmp_path):
+    """A model writing a cover letter writes Markdown. Splitting on every "## "
+    made a heading in the letter fail the whole role."""
     path = written(tmp_path)
-    path.write_text(path.read_text() + "\n## invented_section\n\nhello\n")
-    with pytest.raises(rolefile.MalformedRoleFile):
+    text = path.read_text().replace(
+        "## cover_letter\n\n", "## cover_letter\n\nDear Hiring Manager,\n\n## Why me\n\nBecause.\n")
+    path.write_text(text)
+    parsed = rolefile.parse(path)
+    assert "## Why me" in parsed.sections["cover_letter"]
+    assert "cover_letter" not in parsed.empty_sections()
+
+
+def test_a_blank_required_fact_raises_rather_than_writing_the_word_none(tmp_path):
+    path = written(tmp_path)
+    path.write_text(path.read_text().replace("fit_score: '8'", "fit_score:"))
+    with pytest.raises(rolefile.MalformedRoleFile, match="blank"):
         rolefile.parse(path)

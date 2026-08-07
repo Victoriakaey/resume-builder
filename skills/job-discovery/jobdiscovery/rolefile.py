@@ -22,7 +22,12 @@ FIELD_TO_COLUMN = {"status": "A", "job_url": "B", "date_found": "E", "company": 
                    "freshness_confidence": "K", "requisition_id": "L", "fit_score": "M"}
 COLUMNS = [chr(c) for c in range(ord("A"), ord("R") + 1)]
 FRONT_MATTER = re.compile(r"\A---\n(.*?)\n---\n(.*)\Z", re.S)
-SECTION = re.compile(r"^## (.+)$", re.M)
+# Only the headings this format defines are headings. A cover letter is prose a
+# model wrote, and prose contains Markdown — "## Dear Hiring Manager" used to split
+# the file and fail the whole role. The cost is that a misspelled section name is
+# no longer an error: it reads as body text of the section above it, and that
+# section then shows up empty in empty_sections().
+SECTION = re.compile(r"^## (cover_letter|why_interested|why_it_fits|resume_tailoring|notes|jd|audit)$", re.M)
 
 
 class MalformedRoleFile(ValueError):
@@ -97,13 +102,15 @@ def parse(path) -> RoleFile:
     missing = [f for f in FACT_FIELDS if f not in front]
     if missing:
         raise MalformedRoleFile(f"{path}: missing required fields: {', '.join(missing)}")
+    # A key present with no value parses as None, and str(None) is the four letters
+    # "None" — which is what would land in the tracker cell. A required fact that is
+    # blank is missing, not empty.
+    blank = [f for f in FACT_FIELDS if front[f] is None or not str(front[f]).strip()]
+    if blank:
+        raise MalformedRoleFile(f"{path}: required fields are blank: {', '.join(blank)}")
 
     body = match.group(2)
     names = SECTION.findall(body)
-    allowed = set(PROSE_SECTIONS) | {"jd", "audit"}
-    unknown = [n for n in names if n not in allowed]
-    if unknown:
-        raise MalformedRoleFile(f"{path}: unknown section(s): {', '.join(unknown)}")
     missing_sections = [n for n in PROSE_SECTIONS if n not in names]
     if missing_sections:
         raise MalformedRoleFile(f"{path}: missing section(s): {', '.join(missing_sections)}")
