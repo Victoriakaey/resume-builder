@@ -16,7 +16,14 @@ class YieldAlreadySet(RuntimeError):
 @dataclasses.dataclass
 class RunLedger:
     yield_24h: int | None = None
-    per_source: dict = dataclasses.field(default_factory=dict)
+    # A list, not a dict keyed by source name. Keyed by name, two sources that
+    # happen to share one collapse onto each other and the run under-reports its
+    # own failures: discover.py seeds every malformed companies.yaml entry with
+    # the same literal, so three malformed entries plus one good source recorded
+    # as two, and run.json then claimed the run consulted 2 sources when it
+    # consulted 4. That is the misreport class this project exists to eliminate,
+    # inside the ledger itself. A list cannot collapse and keeps consult order.
+    per_source: list = dataclasses.field(default_factory=list)
     dedup_drops: list = dataclasses.field(default_factory=list)
     review_flags: list = dataclasses.field(default_factory=list)
     unverified: list = dataclasses.field(default_factory=list)
@@ -35,9 +42,10 @@ class RunLedger:
         self.yield_24h = count
 
     def record_source(self, name: str, roles: int, ok: bool, error: str = "") -> None:
-        self.per_source[name] = {
-            "status": "ok" if ok else "failed", "roles": roles, "error": error,
-        }
+        self.per_source.append({
+            "name": name, "status": "ok" if ok else "failed", "roles": roles,
+            "error": error,
+        })
 
     def record_drop(self, url: str, key: str, matched_row: int | None) -> None:
         self.dedup_drops.append({"url": url, "key": key, "matched_row": matched_row})

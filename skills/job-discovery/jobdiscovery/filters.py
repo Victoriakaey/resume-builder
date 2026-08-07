@@ -34,6 +34,11 @@ CA_TAIL = re.compile(r",\s*ca\b", re.I)
 CA_REMOTE = re.compile(
     r"remote[^.\n]{0,60}(california|\bca\b|\bu\.?s\.?a?\.?\b|united states)", re.I)
 NON_CA_REMOTE = re.compile(r"remote[^.\n]{0,60}(emea|europe|apac|canada|latam|india)", re.I)
+# The most common Bay abbreviation on the discovery source — two of twenty
+# recorded listings write it this way, and both were dropped as "location out of
+# area: 'SF'". It cannot join BAY_TERMS, which is substring-matched: a bare "sf"
+# fires inside "transformation" and "Sfax". So it gets a boundary of its own.
+SF = re.compile(r"\bsf\b", re.I)
 CLEARANCE = re.compile(r"(security clearance|ts/sci|top secret|public trust)", re.I)
 YEARS = re.compile(r"(\d{1,2})\s*\+?\s*(?:-\s*\d{1,2}\s*)?years?", re.I)
 MAX_YEARS = 4
@@ -54,13 +59,16 @@ def _location_ok(location: str) -> bool:
     low = location.lower()
     if not low.strip():
         return True                       # ambiguous → keep
-    if NON_CA_REMOTE.search(low):
-        return False
+    # Eligibility first. "Remote (US or Canada)" matches both patterns, and with
+    # the exclusion checked first the US half never got to count — a posting this
+    # search is squarely eligible for, cut for naming a second country.
     if CA_REMOTE.search(low):
         return True
+    if NON_CA_REMOTE.search(low):
+        return False
     if CA_TAIL.search(low):
         return True
-    return any(term in low for term in BAY_TERMS)
+    return bool(SF.search(low)) or any(term in low for term in BAY_TERMS)
 
 
 def _min_years(description: str) -> int | None:

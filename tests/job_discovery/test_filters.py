@@ -86,3 +86,42 @@ def test_clearance_is_cut():
 def test_ambiguity_is_kept_not_dropped():
     # No location signal at all: the spec says ambiguous cases pass through.
     assert filters.verdict(role(location="")).keep
+
+
+@pytest.mark.parametrize("location", [
+    "SF", "SF, CA", "San Francisco (SF)", "SF Bay Area", "Hybrid — SF office",
+])
+def test_sf_is_a_bay_location(location):
+    """The most common Bay abbreviation on the discovery source. Two of twenty
+    recorded listings were dropped as "location out of area: 'SF'"."""
+    assert filters.verdict(role(location=location)).keep
+
+
+@pytest.mark.parametrize("location", [
+    "Sfax, Tunisia",                  # "sf" inside a city name
+    "Berlin — Transformation Office",  # "sf" inside "transformation"
+])
+def test_sf_matches_on_a_word_boundary_not_as_a_substring(location):
+    """BAY_TERMS is substring-matched, so a bare "sf" in that tuple would fire
+    inside unrelated words. This is why it has a boundary of its own."""
+    v = filters.verdict(role(location=location))
+    assert not v.keep and "location" in v.reason
+
+
+@pytest.mark.parametrize("location", [
+    "Remote (US or Canada)", "Remote - Canada or United States", "Remote — USA/EMEA",
+])
+def test_a_remote_posting_the_us_half_makes_eligible_is_kept(location):
+    """NON_CA_REMOTE was checked before CA_REMOTE, so a posting open to the US
+    was cut for also naming somewhere else. Dropping a real posting is the worse
+    of the two failures: a run that over-reports is visible, one that quietly
+    under-reports is not."""
+    assert filters.verdict(role(location=location)).keep
+
+
+@pytest.mark.parametrize("location", ["Remote - Canada", "Remote (EMEA only)",
+                                      "Remote — APAC", "Remote, India"])
+def test_a_remote_posting_with_no_us_half_is_still_cut(location):
+    """Re-ordering the two patterns must not turn the exclusion off."""
+    v = filters.verdict(role(location=location))
+    assert not v.keep and "location" in v.reason

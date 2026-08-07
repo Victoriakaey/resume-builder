@@ -10,7 +10,11 @@ from __future__ import annotations
 import dataclasses, os, pathlib
 import yaml
 
-DEFAULT_CONFIG = "~/Documents/resume/docs/job-discovery/config.yaml"
+# No default into anyone's home directory: the previous one named the author's
+# own private repo, which shipped a path to a machine nobody else has, and
+# contradicted this module's docstring two lines above. The fallback is a
+# conventional per-user location that says nothing about who the user is.
+FALLBACK_CONFIG = "~/.config/job-discovery/config.yaml"
 
 
 @dataclasses.dataclass(frozen=True)
@@ -26,12 +30,14 @@ class Config:
 
 def load(path: str | None = None) -> Config:
     raw_path = pathlib.Path(
-        os.path.expanduser(path or os.environ.get("JOB_DISCOVERY_CONFIG", DEFAULT_CONFIG))
+        os.path.expanduser(path or os.environ.get("JOB_DISCOVERY_CONFIG")
+                           or FALLBACK_CONFIG)
     )
     if not raw_path.exists():
         raise FileNotFoundError(
-            f"job-discovery config not found at {raw_path}. It lives in the user's "
-            "private configuration directory, outside this repo, with keys: "
+            f"job-discovery config not found at {raw_path}. Set JOB_DISCOVERY_CONFIG "
+            f"to where yours lives, or put it at {FALLBACK_CONFIG}. It belongs in the "
+            "user's own private configuration, outside this repo, with keys: "
             "spreadsheet_id, tab_name, first_data_row, header_rows, webapp_credentials, "
             "companies_path, runs_dir."
         )

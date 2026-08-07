@@ -147,7 +147,7 @@ def test_a_malformed_companies_entry_is_one_failed_source_not_a_crash(tmp_path, 
     # The malformed entry plus simplify (stubbed to succeed with zero roles).
     assert len(book_sources) == 2
     name, count, ok, error = book_sources[0]
-    assert name == "<malformed entry>"
+    assert name == "<malformed entry 1>"
     assert count == 0 and ok is False
     assert "KeyError" in error
 
@@ -186,3 +186,61 @@ def test_one_posting_found_through_two_sources_gets_one_file(tmp_path):
     data = json.loads((tmp_path / "run.json").read_text())
     assert data["yield_24h"] == 1
     assert data["dedup_drops"][0]["key"] == "url"
+
+
+def test_every_malformed_companies_entry_is_its_own_failed_source(tmp_path, monkeypatch):
+    """Three bad entries plus one good source is four sources. Seeded with one
+    shared name and recorded in a dict keyed by name, they collapsed to two, and
+    run.json under-reported the run's own failures."""
+    from jobdiscovery import ledger, simplify
+    monkeypatch.setattr(simplify, "fetch", lambda cache_dir: [])
+    companies_path = tmp_path / "companies.yaml"
+    companies_path.write_text(
+        "companies:\n"
+        + "".join(f"  - name: Bad{i}\n    ats: greenhouse\n    source: test\n"
+                  for i in range(3))
+    )
+    cfg = SimpleNamespace(companies_path=companies_path, runs_dir=tmp_path)
+    book_sources = []
+    discover._fetch_all(cfg, book_sources)
+
+    book = ledger.RunLedger()
+    for name, count, ok, error in book_sources:
+        book.record_source(name, count, ok, error)
+    book.write(tmp_path / "run.json")
+    recorded = json.loads((tmp_path / "run.json").read_text())["per_source"]
+    assert len(recorded) == 4                      # three malformed + simplify
+    assert len({s["name"] for s in recorded}) == 4
+    assert sum(1 for s in recorded if s["status"] == "failed") == 3
+
+
+def test_a_review_decision_on_an_unverified_lead_is_recorded(tmp_path):
+    """The fresh loop records "this may already be in your tracker"; the
+    unverified loop dropped the same signal on the floor, against the ledger's
+    promise that nothing leaves without a recorded reason."""
+    row = {c: "" for c in [chr(x) for x in range(ord("A"), ord("R") + 1)]}
+    row.update({"B": "https://example.com/other", "F": "Acme", "G": "AI Engineer",
+                "H": "Palo Alto, CA"})
+    row[sheets.ROW_NUMBER] = 5
+    lead = ats.Role(company="Acme", title="AI Engineer", location="San Francisco, CA",
+                    work_mode="", url="https://example.com/careers/1", job_id="",
+                    ats="", token="", posted_at=None, posted_kind="unknown",
+                    description="", source="simplify")
+    discover.run(roles=[lead], tracker_rows=[row], run_dir=tmp_path, now=NOW,
+                 source_results=[("simplify", 1, True, "")])
+    data = json.loads((tmp_path / "run.json").read_text())
+    assert len(list((tmp_path / "unverified").glob("*.md"))) == 1
+    assert data["review_flags"], "an unverified lead flagged for review left no record"
+    assert data["review_flags"][0]["matched_row"] == 5
+
+
+def test_a_role_this_run_found_carries_no_sheet_row_number(tmp_path):
+    """dedup.remember's row_number=-1 reached run.json verbatim as
+    `matched_row: -1`. A role found this run has no sheet row yet; None says so
+    and -1 reads as a row."""
+    first = role(2)
+    second = role(3, url="https://boards.greenhouse.io/acme/jobs/1?gh_src=x", job_id="1")
+    discover.run(roles=[first, second], tracker_rows=[], run_dir=tmp_path, now=NOW,
+                 source_results=[("greenhouse", 2, True, "")])
+    drop = json.loads((tmp_path / "run.json").read_text())["dedup_drops"][0]
+    assert drop["matched_row"] is None

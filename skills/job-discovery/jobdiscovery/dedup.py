@@ -91,7 +91,9 @@ class Index:
                 index.by_title.setdefault(key, (row_number, location_key(row.get("H", ""))))
         return index
 
-    def remember(self, role, row_number: int = -1) -> None:
+    def remember(self, role, row_number: int | None = None) -> None:
+        """A role this run has now seen. It has no sheet row yet, and -1 is not a
+        row number — it reached run.json verbatim as `matched_row: -1`."""
         url = canonical_url(role.url)
         if url:
             self.by_url.setdefault(url, row_number)

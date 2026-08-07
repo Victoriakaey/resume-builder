@@ -86,6 +86,13 @@ def run(*, roles, tracker_rows, run_dir, now, source_results) -> ledger.RunLedge
         if decision.action == "drop":
             book.record_drop(role.url, decision.key, decision.matched_row)
             continue
+        # An unverified lead earns the same recorded reason as a verified one. The
+        # loop above records "this may already be in your tracker" and this one
+        # used to drop that signal on the floor, against the ledger's own promise
+        # that nothing leaves without a reason written down.
+        if decision.action == "review":
+            book.record_review(role.url, decision.matched_row,
+                               "same company and title, different location")
         index.remember(role)
         book.record_unverified(role.url, role.company, role.title)
         rolefile.write(
@@ -103,10 +110,14 @@ def _fetch_all(cfg, book_sources: list) -> list:
     from jobdiscovery import simplify
     roles: list = []
     companies = (yaml.safe_load(cfg.companies_path.read_text()) or {}).get("companies", [])
-    for entry in companies:
+    for position, entry in enumerate(companies, start=1):
         # Built inside the try: an entry missing a key is one failed source, not a
         # crashed run. Isolation is the whole point of this loop.
-        name = "<malformed entry>"
+        #
+        # Indexed, because the ledger has to be able to tell three malformed
+        # entries apart from one — and a human fixing companies.yaml needs to know
+        # which line to look at.
+        name = f"<malformed entry {position}>"
         try:
             name = f"{entry['ats']}:{entry['token']}"
             url = ats.ENDPOINTS[entry["ats"]].format(token=entry["token"])
@@ -148,9 +159,17 @@ def main(argv: list[str] | None = None) -> int:
     print(f"run {run_id}", file=sys.stderr)
     print(f"  yield (ATS-verified, inside 24h, new): {book.yield_24h}", file=sys.stderr)
     print(f"  unverified (not counted): {len(book.unverified)}", file=sys.stderr)
-    failed = [n for n, s in book.per_source.items() if s["status"] == "failed"]
+    # Everything run.json records about where a quiet day went. Printing only the
+    # yield made "nothing new" and "nothing found" look identical at the terminal,
+    # which is the distinction this system exists to keep.
+    print(f"  stale (verified, outside the window): {book.stale_verified}", file=sys.stderr)
+    print(f"  filtered out: {len(book.filtered_out)}", file=sys.stderr)
+    print(f"  already-in-tracker drops: {len(book.dedup_drops)}", file=sys.stderr)
+    print(f"  flagged for review: {len(book.review_flags)}", file=sys.stderr)
+    failed = [s["name"] for s in book.per_source if s["status"] == "failed"]
     if failed:
-        print(f"  FAILED sources: {', '.join(failed)}", file=sys.stderr)
+        print(f"  FAILED sources: {len(failed)} of {len(book.per_source)}: "
+              f"{', '.join(failed)}", file=sys.stderr)
     print(f"  role files: {run_dir / 'roles'}", file=sys.stderr)
     return 0
 
