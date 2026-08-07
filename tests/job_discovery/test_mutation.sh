@@ -9,6 +9,21 @@
 set -uo pipefail
 cd "$(dirname "$0")/../../skills/job-discovery" || exit 1
 fails=0
+MUTATING=""
+
+# If this script is interrupted (Ctrl-C, a killed pytest, anything) while a
+# mutation is applied, a plain cp/sed/mv sequence leaves the tracked source
+# file mutated and a .bak sitting beside it — a worse state than any failing
+# mutation, because a harness whose whole job is proving the tests are real
+# must never be the thing that quietly breaks the tree. MUTATING names the
+# file with an open edit; the trap only has work to do while it is set.
+restore_now() {
+  if [ -n "${MUTATING:-}" ] && [ -f "$MUTATING.bak" ]; then
+    mv -f "$MUTATING.bak" "$MUTATING"
+  fi
+  return 0
+}
+trap restore_now EXIT INT TERM
 
 assert_mutated() {  # assert_mutated <label> <file>
   # A sed expression that matches nothing leaves the file untouched, the suite
@@ -25,10 +40,11 @@ assert_mutated() {  # assert_mutated <label> <file>
 
 mutate() {  # mutate <label> <file> <sed-expression>
   local label="$1" file="$2" expression="$3"
+  MUTATING="$file"
   cp "$file" "$file.bak"
   /usr/bin/sed -i '' "$expression" "$file"
   if ! assert_mutated "$file" "$label"; then
-    mv "$file.bak" "$file"; fails=$((fails + 1)); return
+    mv "$file.bak" "$file"; MUTATING=""; fails=$((fails + 1)); return
   fi
   if PYTHONPATH=. python3 -m pytest ../../tests/job_discovery -q >/dev/null 2>&1; then
     echo "FAIL  $label — the suite stayed green with the rule broken"
@@ -37,6 +53,7 @@ mutate() {  # mutate <label> <file> <sed-expression>
     echo "PASS  $label — breaking it turns the suite red"
   fi
   mv "$file.bak" "$file"
+  MUTATING=""
 }
 
 # 1. The 24-hour window must not be quietly loosened.
@@ -98,10 +115,11 @@ mutate "sheets: missing claim passes without a word" \
 
 mutate_doc() {  # mutate_doc <label> <sed-expression>
   local label="$1" expression="$2" file="SKILL.md"
+  MUTATING="$file"
   cp "$file" "$file.bak"
   /usr/bin/sed -i '' "$expression" "$file"
   if ! assert_mutated "$file" "$label"; then
-    mv "$file.bak" "$file"; fails=$((fails + 1)); return
+    mv "$file.bak" "$file"; MUTATING=""; fails=$((fails + 1)); return
   fi
   if (cd ../.. && bash tests/test_job_discovery_skill.sh >/dev/null 2>&1); then
     echo "FAIL  $label — the skill guard stayed green with the rule deleted"
@@ -110,6 +128,7 @@ mutate_doc() {  # mutate_doc <label> <sed-expression>
     echo "PASS  $label — deleting it turns the skill guard red"
   fi
   mv "$file.bak" "$file"
+  MUTATING=""
 }
 
 # Patterns are case-correct against the prose as written; assert_mutated catches
