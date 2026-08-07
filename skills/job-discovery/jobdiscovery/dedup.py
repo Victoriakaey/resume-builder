@@ -21,6 +21,15 @@ LOCATION_NOISE = re.compile(r"\((?:[^)]*)\)|[-–—]\s*(remote|hybrid|on-?site)
 PUNCT = re.compile(r"[^a-z0-9 ]+")
 SPACES = re.compile(r"\s+")
 GREENHOUSE_HOST = re.compile(r"^(?:job-)?boards\.greenhouse\.io$", re.I)
+# SimplifyJobs points at the apply URL and the board API points at the posting
+# URL, for the same posting: jobs.ashbyhq.com/<token>/<uuid>/application against
+# jobs.ashbyhq.com/<token>/<uuid>, and .../apply against the same on Lever. With
+# only a trailing slash stripped those were two different keys, so one opening
+# found through both sources produced two role files and two rows in the tracker
+# — and the company+title key could not save it either, because it returns
+# "review" (which KEEPS the role) whenever the two sources word the location
+# differently, which they routinely do.
+APPLY_TAIL = re.compile(r"/(?:apply|application)$", re.I)
 
 
 @dataclasses.dataclass(frozen=True)
@@ -37,7 +46,7 @@ def canonical_url(url: str) -> str:
     host = parts.netloc.lower()
     if GREENHOUSE_HOST.match(host):
         host = "boards.greenhouse.io"
-    path = parts.path.rstrip("/").lower()
+    path = APPLY_TAIL.sub("", parts.path.rstrip("/")).lower()
     return f"{host}{path}"
 
 

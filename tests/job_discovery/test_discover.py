@@ -1,8 +1,8 @@
 """End-to-end over fake sources: no network, no sheet."""
 from __future__ import annotations
-import datetime as dt, json, pathlib
+import dataclasses, datetime as dt, json, pathlib
 from types import SimpleNamespace
-from jobdiscovery import ats, discover, rolefile, sheets
+from jobdiscovery import ats, discover, filters, rolefile, sheets, simplify
 
 NOW = dt.datetime(2026, 8, 6, 12, tzinfo=dt.timezone.utc)
 
@@ -150,3 +150,39 @@ def test_a_malformed_companies_entry_is_one_failed_source_not_a_crash(tmp_path, 
     assert name == "<malformed entry>"
     assert count == 0 and ok is False
     assert "KeyError" in error
+
+
+def test_one_posting_found_through_two_sources_gets_one_file(tmp_path):
+    """SimplifyJobs links to the apply URL and the board API links to the posting
+    URL, so the same opening arrived twice under two keys that could never match.
+    Both of Step 3's independent locks missed at once, and company+title returns
+    "review" — which KEEPS the role — when the two sources word the location
+    differently, which they routinely do. This was masked by role files being
+    unreadable at all; fixing that made it live.
+
+    Driven from the recorded Lever payload, so the URL shapes are the board's own.
+    """
+    fixtures = pathlib.Path(__file__).parent / "fixtures"
+    payload = json.loads((fixtures / "lever_board.json").read_text())
+    from_board = [r for r in ats.parse_board("lever", "boardthree", "Board Three", payload)
+                  if filters.verdict(r).keep]
+    assert from_board, "the Lever fixture no longer holds a posting that passes the filters"
+    posting = dataclasses.replace(from_board[0], posted_at=NOW - dt.timedelta(hours=1))
+
+    # The same posting as SimplifyJobs publishes it: the apply URL, its own UUID,
+    # and its own wording of the location.
+    from_simplify = simplify.to_roles([{
+        "company_name": posting.company, "title": posting.title,
+        "locations": ["San Francisco, CA"],
+        "id": "6b1e1f27-0000-4000-8000-000000000000",
+        "url": posting.url + "/apply",
+    }])
+
+    discover.run(roles=[posting] + from_simplify, tracker_rows=[], run_dir=tmp_path,
+                 now=NOW, source_results=[("lever", 1, True, ""), ("simplify", 1, True, "")])
+    files = list((tmp_path / "roles").glob("*.md")) + \
+        list((tmp_path / "unverified").glob("*.md"))
+    assert len(files) == 1, [f.name for f in files]
+    data = json.loads((tmp_path / "run.json").read_text())
+    assert data["yield_24h"] == 1
+    assert data["dedup_drops"][0]["key"] == "url"

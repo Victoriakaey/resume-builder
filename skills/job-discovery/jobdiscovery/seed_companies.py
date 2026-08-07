@@ -43,6 +43,36 @@ def board_from_url(url: str) -> tuple[str, str] | None:
     return None
 
 
+# Where each ATS puts the posting's own id in the URL path, counted in segments
+# after the host: Greenhouse is /<token>/jobs/<id>, Ashby and Lever are
+# /<token>/<uuid> with an optional /apply or /application on the end.
+ID_INDEX = {"greenhouse": 2, "ashby": 1, "lever": 1}
+APPLY_SEGMENTS = {"apply", "application"}
+
+
+def job_id_from_url(url: str) -> str:
+    """The ATS's own id for a posting, read out of its URL.
+
+    SimplifyJobs gives every listing an id of its own that shares nothing with
+    the ATS id the board API reports, so the same posting seen through both
+    sources produced two ats_id keys that could never match each other. Reading
+    the id off the URL gives both sources the same one.
+
+    An id this cannot resolve comes back empty, and dedup's "no id, no key" rule
+    then leaves the composite alone — which is correct, because a guessed id is
+    a dedup key that merges unrelated postings.
+    """
+    board = board_from_url(url)
+    if board is None:
+        return ""
+    ats, _ = board
+    segments = [s for s in urlsplit(url.strip()).path.split("/") if s]
+    while segments and segments[-1].lower() in APPLY_SEGMENTS:
+        segments.pop()
+    index = ID_INDEX[ats]
+    return segments[index] if len(segments) > index else ""
+
+
 def entries_from_rows(rows: list[dict[str, str]]) -> list[dict[str, str]]:
     seen: dict[tuple[str, str], dict[str, str]] = {}
     for row in rows:

@@ -10,7 +10,7 @@ actually run.
 from __future__ import annotations
 import json, pathlib, subprocess
 from jobdiscovery import ats
-from jobdiscovery.seed_companies import board_from_url
+from jobdiscovery.seed_companies import board_from_url, job_id_from_url
 
 REPO = "https://github.com/SimplifyJobs/New-Grad-Positions.git"
 # Confirmed against a fresh clone (2026-08-07): the repo still keeps its
@@ -57,7 +57,10 @@ def to_roles(listings: list[dict]) -> list[ats.Role]:
             title=str(item.get("title") or ""),
             location=(", ".join(str(place) for place in locations)
                       if isinstance(locations, list) else str(locations)),
-            work_mode="", url=url, job_id=str(item.get("id") or ""),
+            # The ATS's id, read off the URL — never the listing's own
+            # SimplifyJobs UUID, which no board API will ever report and which
+            # therefore guaranteed the ats_id dedup key could not match.
+            work_mode="", url=url, job_id=job_id_from_url(url),
             ats=ats_name, token=token,
             posted_at=None, posted_kind="unknown",
             description="", source="simplify",

@@ -114,3 +114,45 @@ def test_every_non_new_decision_names_a_key_and_a_row():
     index = dedup.Index.from_rows([row("https://boards.greenhouse.io/acme/jobs/1")])
     decision = index.check(role())
     assert decision.key and decision.matched_row is not None
+
+
+# --- one posting, two sources ------------------------------------------------
+#
+# SimplifyJobs links to the apply URL; the board API links to the posting URL.
+# Both of append.py's independent locks used to miss at once: the canonical URLs
+# differed by one path segment, and the ats_id composite could never match
+# because simplify.to_roles keyed off its own listing UUID. company_title then
+# returned "review" — which keeps the role — whenever the two sources worded the
+# location differently. Result: two files, two rows, for one opening.
+
+ASHBY_POSTING = "https://jobs.ashbyhq.com/boardone/69f1b1e2-4231-4c5e-b070-07df29fd3899"
+LEVER_POSTING = "https://jobs.lever.co/boardthree/cfad09e6-8a41-45da-8bb3-a91464a08318"
+
+
+@pytest.mark.parametrize("posting, applying", [
+    (ASHBY_POSTING, ASHBY_POSTING + "/application"),
+    (LEVER_POSTING, LEVER_POSTING + "/apply"),
+    (ASHBY_POSTING + "/application", ASHBY_POSTING),
+    (LEVER_POSTING + "/apply", LEVER_POSTING),
+])
+def test_an_apply_url_and_its_posting_url_are_one_role(posting, applying):
+    """Both directions: whichever source is seen first, the second is a drop."""
+    assert dedup.canonical_url(posting) == dedup.canonical_url(applying)
+    index = dedup.Index.from_rows([])
+    first = role(url=posting, job_id="a")
+    index.remember(first)
+    assert index.check(role(url=applying, job_id="a")).action == "drop"
+
+
+@pytest.mark.parametrize("one, two", [
+    (ASHBY_POSTING, "https://jobs.ashbyhq.com/boardone/5f5e3643-7236-43fc-bae4-e2f0a686fc37"),
+    (LEVER_POSTING + "/apply",
+     "https://jobs.lever.co/boardthree/01e8c00e-720c-43e1-a999-6f4c350ef5e9/apply"),
+    ("https://jobs.ashbyhq.com/boardone/abc", "https://jobs.ashbyhq.com/boardtwo/abc"),
+])
+def test_two_genuinely_different_postings_stay_two_roles(one, two):
+    """The tail-stripping must not collapse anything but the tail."""
+    assert dedup.canonical_url(one) != dedup.canonical_url(two)
+    index = dedup.Index.from_rows([])
+    index.remember(role(url=one, job_id="1", title="Role One"))
+    assert index.check(role(url=two, job_id="2", title="Role Two")).action == "new"

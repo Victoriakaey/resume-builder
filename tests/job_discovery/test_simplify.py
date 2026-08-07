@@ -59,3 +59,38 @@ def test_fetch_refuses_a_listings_file_that_is_not_a_list(tmp_path, monkeypatch)
 
     with pytest.raises(TypeError, match=re.escape(str(listings_path))):
         simplify.fetch(tmp_path)
+
+
+def test_a_lead_carries_the_ats_id_from_its_url_not_simplifys_own_id():
+    """The listing's `id` is SimplifyJobs\' own UUID: no board API will ever
+    report it, so an ats_id key built from it could not match the same posting
+    arriving from the board. The id in the URL path is the one both sources
+    share."""
+    roles = simplify.to_roles([{
+        "company_name": "Example Co", "title": "AI Engineer", "locations": ["SF"],
+        "id": "579fd96a-2def-4909-8c81-e0dd82699d2e",
+        "url": "https://jobs.ashbyhq.com/exampleco/230e365c-de86-4f7b-b971-2d25a021b0d4/application",
+    }])
+    assert roles[0].job_id == "230e365c-de86-4f7b-b971-2d25a021b0d4"
+
+
+@pytest.mark.parametrize("url, expected", [
+    ("https://job-boards.greenhouse.io/exampleco/jobs/5023884008", "5023884008"),
+    ("https://boards.greenhouse.io/exampleco/jobs/8330100002", "8330100002"),
+    ("https://jobs.lever.co/exampleco/02b3ba78-ccb4-40a4-94b3-6b14c71eed9e/apply",
+     "02b3ba78-ccb4-40a4-94b3-6b14c71eed9e"),
+    ("https://boards.greenhouse.io/embed/job_app?token=7580399003", ""),
+    ("https://example.com/careers/1", ""),
+])
+def test_the_ats_id_is_read_per_board_shape_and_left_empty_when_unresolvable(url, expected):
+    roles = simplify.to_roles([{"company_name": "Example Co", "title": "AI Engineer",
+                                "locations": ["SF"], "url": url, "id": "simplify-uuid"}])
+    assert roles[0].job_id == expected
+
+
+def test_every_recorded_lead_that_names_a_board_resolves_an_id():
+    """Over the recorded listings, not a hand-written URL: if the repo changes
+    the shape of the URLs it publishes, this is what notices."""
+    resolved = [r for r in simplify.to_roles(_listings()) if r.ats]
+    assert resolved, "no recorded listing points at a known ATS any more"
+    assert all(r.job_id for r in resolved)
