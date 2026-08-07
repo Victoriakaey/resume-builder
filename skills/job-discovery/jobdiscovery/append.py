@@ -40,9 +40,12 @@ def plan(collected: tuple[list, list[dict]], tracker_rows) -> tuple[list, list[d
     Takes `collect()`'s own return value directly, so a file `rolefile.parse`
     refused is folded into the skip list here rather than by every caller
     re-doing that bookkeeping. Note this does not dedupe two role files in the
-    same run against each other — only against `tracker_rows`, the sheet as it
-    stood when this run started. See task-11-report.md for why that is left as
-    a reported gap rather than fixed silently.
+    same run against each other — `seen` is built once from `tracker_rows` and
+    never grows as `to_append` does, so two role files sharing a canonical URL
+    in the same run both pass and both get appended. Deliberately left as-is
+    rather than fixed here: Step 1 already dedupes by URL before writing role
+    files, so this path is not expected to fire in practice, and closing it
+    blind is a decision for whoever reviews this, not a silent addition.
     """
     role_files, unreadable = collected
     seen = {dedup.canonical_url(row.get("B", "")) for row in tracker_rows}
@@ -75,9 +78,14 @@ def write_rows(client, role_files) -> int:
 
     All rows travel together so a run's yield lands in the sheet as one
     contiguous block rather than interleaved with whatever else appends between
-    calls. Markers are written only once the call returns without raising —
-    see collect()'s and this function's docstrings, and task-11-report.md, for
-    what a partial success (no exception, but a lower count than sent) implies.
+    calls. Markers are written only once the call returns without raising, so a
+    raised exception here leaves every entry unmarked and re-runnable — the
+    live-URL check in `plan()` is what actually protects a re-run in that case,
+    since the tracker will already show whichever rows the API call got to
+    before it failed. `append_rows` returning a *count lower than len(rows)*
+    without raising is a different, unhandled case: every entry here still gets
+    a marker regardless of what `written` says, so a silent partial write on the
+    endpoint's side would mark a role "appended" that never actually landed.
     """
     if not role_files:
         return 0
