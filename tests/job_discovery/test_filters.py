@@ -58,8 +58,14 @@ def test_a_substring_of_another_word_is_not_a_location_match(location):
     assert not v.keep and "location" in v.reason
 
 
-@pytest.mark.parametrize("location", ["Remote, US", "Foster City, CA", "Remote - United States"])
+@pytest.mark.parametrize("location", [
+    "Remote, US", "Remote, USA", "Remote - USA", "Remote (USA only)",
+    "Remote - U.S.", "Remote - United States", "Foster City, CA",
+])
 def test_the_tightened_rules_still_keep_what_they_should(location):
+    """The boundary that cuts "Australia" must not also cut "USA" — a filter that
+    quietly eats real postings fails invisibly, which is worse than one that lets
+    a few through."""
     assert filters.verdict(role(location=location)).keep
 
 

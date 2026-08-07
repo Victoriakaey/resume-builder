@@ -26,9 +26,13 @@ BAY_TERMS = ("san francisco", "sf bay", "bay area", "palo alto", "mountain view"
 # Vancouver posting. The state abbreviation has to end where the word ends.
 CA_TAIL = re.compile(r",\s*ca\b", re.I)
 # Likewise `us` without boundaries matched the "us" inside "Australia" and inside
-# "must relocate". Both alternatives are whole words now.
+# "must relocate". The country is a whole word now — and it has to admit USA as
+# well as US, because a boundary tight enough to cut "Australia" also cut
+# "Remote, USA" on the first attempt. Dropping a real posting is the worse of the
+# two failures: a run that over-reports is visible, one that quietly under-reports
+# is not.
 CA_REMOTE = re.compile(
-    r"remote[^.\n]{0,60}(california|\bca\b|\bu\.?s\.?\b|united states)", re.I)
+    r"remote[^.\n]{0,60}(california|\bca\b|\bu\.?s\.?a?\.?\b|united states)", re.I)
 NON_CA_REMOTE = re.compile(r"remote[^.\n]{0,60}(emea|europe|apac|canada|latam|india)", re.I)
 CLEARANCE = re.compile(r"(security clearance|ts/sci|top secret|public trust)", re.I)
 YEARS = re.compile(r"(\d{1,2})\s*\+?\s*(?:-\s*\d{1,2}\s*)?years?", re.I)
