@@ -21,6 +21,11 @@ class RunLedger:
     review_flags: list = dataclasses.field(default_factory=list)
     unverified: list = dataclasses.field(default_factory=list)
     filtered_out: list = dataclasses.field(default_factory=list)
+    # Verified, filtered, and older than the window. No file is written for these
+    # — they are not this run's business — but a count keeps them from vanishing
+    # without trace, so a quiet day is legible as "nothing new" rather than
+    # "nothing found".
+    stale_verified: int = 0
 
     def set_yield(self, count: int) -> None:
         if self.yield_24h is not None:

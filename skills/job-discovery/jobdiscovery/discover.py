@@ -6,18 +6,34 @@ whole pipeline is testable without touching Google or an ATS. main() is the thin
 shell that does the fetching.
 """
 from __future__ import annotations
-import argparse, datetime as dt, pathlib, re, sys
+import argparse, datetime as dt, hashlib, pathlib, re, sys
 from jobdiscovery import ats, dedup, filters, fitscore, freshness, ledger, rolefile
 
 SLUG = re.compile(r"[^a-z0-9]+")
 
 
-def _slug(*parts: str) -> str:
-    return SLUG.sub("-", " ".join(parts).lower()).strip("-")[:80] or "role"
+def _slug(role) -> str:
+    """One file per posting, not per company-and-title.
+
+    Two real openings at one company with the same title and different locations
+    are exactly what dedup's "review" action exists to preserve — and naming the
+    files from company and title alone collapsed them onto each other. A live run
+    lost four of eight that way. The URL is what distinguishes a posting, so a
+    short digest of it ends every name."""
+    stem = SLUG.sub("-", f"{role.company} {role.title}".lower()).strip("-")[:70] or "role"
+    digest = hashlib.sha1(role.url.encode()).hexdigest()[:8]
+    return f"{stem}-{digest}"
 
 
 def run(*, roles, tracker_rows, run_dir, now, source_results) -> ledger.RunLedger:
     run_dir = pathlib.Path(run_dir)
+    # Writing a second run into a directory that already holds one leaves files
+    # the new run.json does not account for, which is the same lie by a different
+    # route: the ledger would describe a run the disk does not match.
+    if (run_dir / "run.json").exists():
+        raise FileExistsError(
+            f"{run_dir} already holds a run. Pass a different --run-id, or remove it."
+        )
     book = ledger.RunLedger()
     for name, count, ok, error in source_results:
         book.record_source(name, count, ok, error)
@@ -33,13 +49,15 @@ def run(*, roles, tracker_rows, run_dir, now, source_results) -> ledger.RunLedge
     verified = [r for r in kept if r.posted_at is not None]
     unverified = [r for r in kept if r.posted_at is None]
 
-    # Dedup runs over every verified, filtered role regardless of age — matching
-    # against the tracker is freshness-independent, and a genuinely new opening
-    # still deserves a file even if it is older than the window. The window only
-    # decides what counts toward the reported yield, below.
+    # One window. Everything outside it is simply not this run's business — but
+    # the ledger says how many there were, so "yield 0" and "found nothing" stay
+    # distinguishable.
+    fresh = freshness.within_window(verified, now)
+    book.stale_verified = len(verified) - len(fresh)
+
     index = dedup.Index.from_rows(tracker_rows)
-    verified_unique = []
-    for role in verified:
+    fresh_unique = []
+    for role in fresh:
         decision = index.check(role)
         if decision.action == "drop":
             book.record_drop(role.url, decision.key, decision.matched_row)
@@ -48,16 +66,15 @@ def run(*, roles, tracker_rows, run_dir, now, source_results) -> ledger.RunLedge
             book.record_review(role.url, decision.matched_row,
                                "same company and title, different location")
         index.remember(role)
-        verified_unique.append(role)
+        fresh_unique.append(role)
 
-    # One window. The yield is set after dedup, because a role already in the
-    # tracker is not something this run found. It is set once and cannot be
-    # revised.
-    book.set_yield(len(freshness.within_window(verified_unique, now)))
+    # The yield is set after dedup, because a role already in the tracker is not
+    # something this run found. It is set once and cannot be revised.
+    book.set_yield(len(fresh_unique))
 
-    for role in verified_unique:
+    for role in fresh_unique:
         rolefile.write(
-            run_dir / "roles" / f"{_slug(role.company, role.title)}.md", role,
+            run_dir / "roles" / f"{_slug(role)}.md", role,
             fit=fitscore.score(role), confidence=freshness.confidence(role),
             age_hours=freshness.age_hours(role, now), run_date=now.date(),
         )
@@ -69,7 +86,7 @@ def run(*, roles, tracker_rows, run_dir, now, source_results) -> ledger.RunLedge
         index.remember(role)
         book.record_unverified(role.url, role.company, role.title)
         rolefile.write(
-            run_dir / "unverified" / f"{_slug(role.company, role.title)}.md", role,
+            run_dir / "unverified" / f"{_slug(role)}.md", role,
             fit=fitscore.score(role), confidence="Low", age_hours=None, run_date=now.date(),
         )
 
