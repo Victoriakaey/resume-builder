@@ -18,11 +18,10 @@ class Config:
     spreadsheet_id: str
     tab_name: str
     first_data_row: int
-    key_path: pathlib.Path
+    header_rows: int
+    webapp_credentials: pathlib.Path
     companies_path: pathlib.Path
     runs_dir: pathlib.Path
-    summary_range: str | None = None
-    summary_cell: str | None = None
 
 
 def load(path: str | None = None) -> Config:
@@ -31,22 +30,22 @@ def load(path: str | None = None) -> Config:
     )
     if not raw_path.exists():
         raise FileNotFoundError(
-            f"job-discovery config not found at {raw_path}. It lives in the private "
-            "repo; see docs/plans/2026-08-06-job-discovery.md Task 1."
+            f"job-discovery config not found at {raw_path}. It lives in the user's "
+            "private configuration directory, outside this repo, with keys: "
+            "spreadsheet_id, tab_name, first_data_row, header_rows, webapp_credentials, "
+            "companies_path, runs_dir."
         )
     data = yaml.safe_load(raw_path.read_text()) or {}
-    missing = [k for k in ("spreadsheet_id", "tab_name", "first_data_row",
-                           "key_path", "companies_path", "runs_dir") if k not in data]
+    missing = [k for k in ("spreadsheet_id", "tab_name", "first_data_row", "header_rows",
+                           "webapp_credentials", "companies_path", "runs_dir") if k not in data]
     if missing:
         raise ValueError(f"{raw_path} is missing required keys: {', '.join(missing)}")
-    key = pathlib.Path(os.path.expanduser(os.environ.get("JOB_DISCOVERY_SA_KEY", data["key_path"])))
     return Config(
         spreadsheet_id=str(data["spreadsheet_id"]),
         tab_name=str(data["tab_name"]),
         first_data_row=int(data["first_data_row"]),
-        key_path=key,
+        header_rows=int(data["header_rows"]),
+        webapp_credentials=pathlib.Path(os.path.expanduser(data["webapp_credentials"])),
         companies_path=pathlib.Path(os.path.expanduser(data["companies_path"])),
         runs_dir=pathlib.Path(os.path.expanduser(data["runs_dir"])),
-        summary_range=data.get("summary_range") or None,
-        summary_cell=data.get("summary_cell") or None,
     )

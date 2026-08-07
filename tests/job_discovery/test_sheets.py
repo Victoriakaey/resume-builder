@@ -1,7 +1,9 @@
-"""The Sheets client's two safety properties: rows come back keyed by column
-letter, and a short read is an error rather than a smaller answer."""
+"""The tracker client's safety properties: rows come back keyed by column
+letter, a short read is an error rather than a smaller answer, the endpoint's
+own failure is surfaced rather than swallowed, and nothing touches the network
+without an injected fake session."""
 from __future__ import annotations
-import json, pathlib, pytest
+import json, pathlib, types, pytest
 from jobdiscovery import sheets
 
 FIXTURES = pathlib.Path(__file__).parent / "fixtures"
@@ -9,6 +11,36 @@ FIXTURES = pathlib.Path(__file__).parent / "fixtures"
 
 def _values() -> dict:
     return json.loads((FIXTURES / "sheet_values_small.json").read_text())
+
+
+class _FakeResponse:
+    def __init__(self, payload: dict):
+        self._payload = payload
+
+    def raise_for_status(self) -> None:
+        pass
+
+    def json(self) -> dict:
+        return self._payload
+
+
+class _FakeSession:
+    """Records every call made through it; a test asserting `calls == []`
+    is asserting the network was never touched."""
+
+    def __init__(self, payload: dict):
+        self._payload = payload
+        self.calls: list[tuple[str, dict, int]] = []
+
+    def post(self, url, json, timeout):
+        self.calls.append((url, json, timeout))
+        return _FakeResponse(self._payload)
+
+
+def _credentials(tmp_path: pathlib.Path, url="https://example.test/exec", token="tok") -> types.SimpleNamespace:
+    creds_path = tmp_path / "webapp.json"
+    creds_path.write_text(json.dumps({"url": url, "token": token}))
+    return types.SimpleNamespace(webapp_credentials=str(creds_path))
 
 
 def test_rows_are_keyed_by_column_letter():
@@ -26,32 +58,71 @@ def test_short_row_is_padded_to_R_not_truncated():
 
 def test_read_shorter_than_the_sheet_claims_is_an_error():
     with pytest.raises(sheets.IncompleteReadError):
-        sheets.assert_complete_read(returned_rows=115, claimed_total=191)
+        sheets.assert_complete_read(returned_rows=115, last_row=195, first_data_row=5)
 
 
-def test_read_matching_the_claim_is_accepted():
-    sheets.assert_complete_read(returned_rows=191, claimed_total=191)
+def test_read_matching_the_sheets_own_extent_is_accepted():
+    sheets.assert_complete_read(returned_rows=191, last_row=195, first_data_row=5)
 
 
-def test_more_rows_than_claimed_is_accepted_because_the_claim_is_hand_maintained():
-    sheets.assert_complete_read(returned_rows=200, claimed_total=191)
+def test_more_rows_than_the_extent_implies_is_accepted():
+    sheets.assert_complete_read(returned_rows=200, last_row=195, first_data_row=5)
 
 
-def test_no_claim_configured_means_no_check_rather_than_a_silent_pass(capsys):
-    sheets.assert_complete_read(returned_rows=115, claimed_total=None)
-    assert "unchecked" in capsys.readouterr().err.lower()
+def test_call_raises_endpoint_error_when_the_endpoint_reports_failure(tmp_path):
+    session = _FakeSession({"ok": False, "error": "bad token"})
+    client = sheets.TrackerClient(_credentials(tmp_path), session=session)
+    with pytest.raises(sheets.EndpointError, match="bad token"):
+        client._call("read")
 
 
-def test_numbers_in_a_block_are_found_with_their_addresses():
-    found = sheets.find_numbers([["Job Tracker", "", "191 roles"],
-                                 ["updated 2026", "", ""]], "A1:R4")
-    assert ("C1", 191) in found
-    assert ("A2", 2026) in found
+@pytest.mark.parametrize("url,token", [("", "tok"), ("https://example.test/exec", "")])
+def test_missing_url_or_token_in_credentials_raises_endpoint_error(tmp_path, url, token):
+    creds = _credentials(tmp_path, url=url, token=token)
+    with pytest.raises(sheets.EndpointError):
+        sheets.TrackerClient(creds, session=_FakeSession({}))
 
 
-def test_a_thousands_separator_is_one_number_not_two():
-    assert sheets.find_numbers([["1,204 roles"]], "A1:R4") == [("A1", 1204)]
+def test_missing_url_or_token_key_entirely_raises_endpoint_error(tmp_path):
+    creds_path = tmp_path / "webapp.json"
+    creds_path.write_text(json.dumps({"token": "tok"}))  # no "url" key at all
+    cfg = types.SimpleNamespace(webapp_credentials=str(creds_path))
+    with pytest.raises(sheets.EndpointError):
+        sheets.TrackerClient(cfg, session=_FakeSession({}))
 
 
-def test_addresses_are_relative_to_the_range_start():
-    assert sheets.find_numbers([["7"]], "D2:R4") == [("D2", 7)]
+def test_read_tracker_drops_wholly_blank_rows_before_the_completeness_check(tmp_path):
+    payload = {
+        "ok": True,
+        "rows": [
+            ["Discovered", "https://x/1"] + [""] * 16,
+            [""] * 18,
+            ["Applied", "https://x/2"] + [""] * 16,
+        ],
+        "lastRow": 6,
+        "firstDataRow": 5,
+    }
+    client = sheets.TrackerClient(_credentials(tmp_path), session=_FakeSession(payload))
+    rows = client.read_tracker()
+    assert len(rows) == 2
+    assert rows[0]["B"] == "https://x/1"
+    assert rows[1]["B"] == "https://x/2"
+
+
+def test_append_rows_with_empty_list_returns_zero_without_calling_the_endpoint(tmp_path):
+    session = _FakeSession({"ok": True, "appended": 99})
+    client = sheets.TrackerClient(_credentials(tmp_path), session=session)
+    assert client.append_rows([]) == 0
+    assert session.calls == []
+
+
+def test_append_rows_posts_and_returns_the_appended_count(tmp_path):
+    session = _FakeSession({"ok": True, "appended": 2, "firstRow": 216})
+    client = sheets.TrackerClient(_credentials(tmp_path), session=session)
+    appended = client.append_rows([["a"] * 18, ["b"] * 18])
+    assert appended == 2
+    assert len(session.calls) == 1
+    url, body, timeout = session.calls[0]
+    assert body["action"] == "append"
+    assert body["rows"] == [["a"] * 18, ["b"] * 18]
+    assert body["token"] == "tok"

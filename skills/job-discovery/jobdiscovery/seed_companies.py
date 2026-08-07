@@ -51,7 +51,7 @@ def main(argv: list[str] | None = None) -> int:
     ap.add_argument("--out", help="where to write companies.yaml (default: config's companies_path)")
     args = ap.parse_args(argv)
     cfg = config.load()
-    rows = sheets.SheetsClient(cfg).read_tracker()
+    rows = sheets.TrackerClient(cfg).read_tracker()
     entries = entries_from_rows(rows)
     out = pathlib.Path(args.out) if args.out else cfg.companies_path
     out.parent.mkdir(parents=True, exist_ok=True)
