@@ -47,6 +47,22 @@ def test_out_of_area_is_cut(location):
     assert not v.keep and "location" in v.reason
 
 
+@pytest.mark.parametrize("location", [
+    "Toronto, Canada",                       # ", ca" once matched ", Canada"
+    "Vancouver, Canada",
+    "Remote - Australia",                    # the "us" inside "Australia"
+    "Remote (must relocate within 90 days)",  # the "us" inside "must"
+])
+def test_a_substring_of_another_word_is_not_a_location_match(location):
+    v = filters.verdict(role(location=location))
+    assert not v.keep and "location" in v.reason
+
+
+@pytest.mark.parametrize("location", ["Remote, US", "Foster City, CA", "Remote - United States"])
+def test_the_tightened_rules_still_keep_what_they_should(location):
+    assert filters.verdict(role(location=location)).keep
+
+
 def test_hard_years_requirement_above_four_is_cut():
     v = filters.verdict(role(description="We require 8+ years of production experience."))
     assert not v.keep and "years" in v.reason

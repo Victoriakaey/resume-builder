@@ -21,8 +21,14 @@ SENIORITY_CUTS = ("senior", "staff", "principal", "lead ", "manager", "director"
 BAY_TERMS = ("san francisco", "sf bay", "bay area", "palo alto", "mountain view",
              "menlo park", "sunnyvale", "santa clara", "san jose", "berkeley",
              "oakland", "redwood city", "cupertino", "south san francisco",
-             "san mateo", "burlingame", "emeryville", "california", ", ca")
-CA_REMOTE = re.compile(r"remote[^.\n]{0,60}(california|\bca\b|us|united states)", re.I)
+             "san mateo", "burlingame", "emeryville", "california")
+# A bare ", ca" substring also matches ", Canada", which kept every Toronto and
+# Vancouver posting. The state abbreviation has to end where the word ends.
+CA_TAIL = re.compile(r",\s*ca\b", re.I)
+# Likewise `us` without boundaries matched the "us" inside "Australia" and inside
+# "must relocate". Both alternatives are whole words now.
+CA_REMOTE = re.compile(
+    r"remote[^.\n]{0,60}(california|\bca\b|\bu\.?s\.?\b|united states)", re.I)
 NON_CA_REMOTE = re.compile(r"remote[^.\n]{0,60}(emea|europe|apac|canada|latam|india)", re.I)
 CLEARANCE = re.compile(r"(security clearance|ts/sci|top secret|public trust)", re.I)
 YEARS = re.compile(r"(\d{1,2})\s*\+?\s*(?:-\s*\d{1,2}\s*)?years?", re.I)
@@ -47,6 +53,8 @@ def _location_ok(location: str) -> bool:
     if NON_CA_REMOTE.search(low):
         return False
     if CA_REMOTE.search(low):
+        return True
+    if CA_TAIL.search(low):
         return True
     return any(term in low for term in BAY_TERMS)
 
