@@ -17,7 +17,9 @@ def a_run(tmp_path, prose=True, marker=False):
     rolefile.write(path, a_role(), fit=8, confidence="High", age_hours=30.0,
                    run_date=dt.date(2026, 8, 6))
     if prose:
-        text = path.read_text().replace("## cover_letter\n\n", "## cover_letter\n\nDear Acme,\n")
+        text = path.read_text()
+        for name in append.REQUIRED_SECTIONS:
+            text = text.replace(f"## {name}\n\n", f"## {name}\n\nreviewed {name}\n")
         path.write_text(text)
     if marker:
         path.with_suffix(".md.appended").write_text("2026-08-06\n")
@@ -60,8 +62,10 @@ def test_all_rows_go_in_a_single_call(tmp_path, monkeypatch):
                    a_role(job_id="2", url="https://boards.greenhouse.io/acme/jobs/2"),
                    fit=7, confidence="High", age_hours=10.0, run_date=dt.date(2026, 8, 6))
     second = run_dir / "roles" / "acme-llm-systems-engineer.md"
-    second.write_text(second.read_text().replace("## cover_letter\n\n",
-                                                 "## cover_letter\n\nDear Acme,\n"))
+    text = second.read_text()
+    for name in append.REQUIRED_SECTIONS:
+        text = text.replace(f"## {name}\n\n", f"## {name}\n\nreviewed {name}\n")
+    second.write_text(text)
     to_append, _ = append.plan(append.collect(run_dir), [])
     append.write_rows(FakeClient(), to_append)
     assert len(calls) == 1 and len(calls[0]) == 2
@@ -76,6 +80,39 @@ def test_markers_are_written_only_after_a_successful_write(tmp_path):
     to_append, _ = append.plan(append.collect(run_dir), [])
     with pytest.raises(RuntimeError):
         append.write_rows(FailingClient(), to_append)
+    assert not (run_dir / "roles" / "acme-ai-engineer.md.appended").exists()
+
+
+def test_a_role_with_only_notes_empty_is_still_appended(tmp_path):
+    """notes is optional — pins the rule itself, not just REQUIRED_SECTIONS' contents."""
+    run_dir = a_run(tmp_path)
+    to_append, skipped = append.plan(append.collect(run_dir), [])
+    assert skipped == []
+    assert to_append[0].sections["notes"].strip() == ""
+    for name in append.REQUIRED_SECTIONS:
+        assert to_append[0].sections[name].strip()
+
+
+def test_a_role_missing_one_required_section_is_skipped_by_name(tmp_path):
+    run_dir = a_run(tmp_path)
+    path = run_dir / "roles" / "acme-ai-engineer.md"
+    text = path.read_text().replace(
+        "## why_it_fits\n\nreviewed why_it_fits\n", "## why_it_fits\n\n\n")
+    path.write_text(text)
+    to_append, skipped = append.plan(append.collect(run_dir), [])
+    assert to_append == []
+    assert "why_it_fits" in skipped[0]["reason"]
+
+
+def test_a_short_write_raises_partial_append_and_marks_nothing(tmp_path):
+    class ShortClient:
+        def append_rows(self, rows):
+            return len(rows) - 1
+
+    run_dir = a_run(tmp_path)
+    to_append, _ = append.plan(append.collect(run_dir), [])
+    with pytest.raises(append.PartialAppend):
+        append.write_rows(ShortClient(), to_append)
     assert not (run_dir / "roles" / "acme-ai-engineer.md.appended").exists()
 
 

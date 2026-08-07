@@ -12,6 +12,12 @@ from jobdiscovery import dedup, rolefile
 
 MARKER_SUFFIX = ".appended"
 
+# notes is genuinely optional — a role with nothing worth noting should not be held
+# back, and a model padding it to pass a check is worse than a blank cell. The other
+# four are the review itself; a row missing one of them is half-written, and a
+# half-written role in the sheet is worse than one that waits a round.
+REQUIRED_SECTIONS = ("cover_letter", "why_interested", "why_it_fits", "resume_tailoring")
+
 
 def collect(run_dir, include_unverified: bool = False) -> tuple[list, list[dict]]:
     """Parse every role file, and refuse only the ones that are actually broken.
@@ -59,18 +65,20 @@ def plan(collected: tuple[list, list[dict]], tracker_rows) -> tuple[list, list[d
         if dedup.canonical_url(entry.fields.get("B", "")) in seen:
             skipped.append({"file": str(entry.path), "reason": "already in the sheet"})
             continue
-        # "Empty" means Step 2 never touched this role at all: every prose
-        # section is still exactly as Step 1 left it. A role Step 2 wrote
-        # something for — even only one section — is reviewed, not blank; a
-        # role file where every one of the five is untouched is the one that
-        # would land as a wholly blank prose row.
-        empty = entry.empty_sections()
-        if len(empty) == len(rolefile.PROSE_SECTIONS):
+        # notes is optional; the other four are the review itself, so only
+        # those four gate the append. See REQUIRED_SECTIONS above for why.
+        missing = [name for name in REQUIRED_SECTIONS
+                   if not entry.sections.get(name, "").strip()]
+        if missing:
             skipped.append({"file": str(entry.path),
-                            "reason": f"empty prose section(s): {', '.join(empty)}"})
+                            "reason": f"empty prose section(s): {', '.join(missing)}"})
             continue
         to_append.append(entry)
     return to_append, skipped
+
+
+class PartialAppend(RuntimeError):
+    """The endpoint reported writing fewer rows than were sent."""
 
 
 def write_rows(client, role_files) -> int:
@@ -82,14 +90,25 @@ def write_rows(client, role_files) -> int:
     raised exception here leaves every entry unmarked and re-runnable — the
     live-URL check in `plan()` is what actually protects a re-run in that case,
     since the tracker will already show whichever rows the API call got to
-    before it failed. `append_rows` returning a *count lower than len(rows)*
-    without raising is a different, unhandled case: every entry here still gets
-    a marker regardless of what `written` says, so a silent partial write on the
-    endpoint's side would mark a role "appended" that never actually landed.
+    before it failed.
+
+    A short write — `append_rows` returns without raising, but reports fewer
+    rows than were sent — is a different case, and ambiguous on its own terms:
+    the count says how many landed, never which. Marking every file appended
+    would silently lose whichever one did not; marking none and letting a
+    re-run happen would double-append whichever one did. Both are a guess made
+    on the human's behalf about their own job applications, so neither marker
+    is written — `PartialAppend` is raised instead, and reconciling against the
+    sheet is left to a human who can actually see which rows landed.
     """
     if not role_files:
         return 0
     written = client.append_rows([entry.to_row() for entry in role_files])
+    if written != len(role_files):
+        raise PartialAppend(
+            f"sent {len(role_files)} row(s), endpoint reported {written}. No file was "
+            "marked appended. Reconcile against the sheet before running this again."
+        )
     stamp = dt.datetime.now(dt.timezone.utc).isoformat()
     for entry in role_files:
         entry.path.with_name(entry.path.name + MARKER_SUFFIX).write_text(stamp + "\n")
