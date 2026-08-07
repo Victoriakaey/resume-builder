@@ -19,6 +19,13 @@ def test_the_location_point_follows_the_work_mode_not_the_location_text():
     assert fitscore.explain(remote)["location"] == 0
 
 
+def test_an_unknown_work_mode_earns_no_location_point():
+    """Discovery sources produce roles with no work mode at all. Scoring those as
+    "not Remote" handed every unverified lead a point it had not earned."""
+    unknown = role("AI Engineer", location="San Francisco, CA", work_mode="")
+    assert fitscore.explain(unknown)["location"] == 0
+
+
 def test_score_is_bounded():
     for r in [role("AI Engineer"), role("Sales Rep", "cold calling", "New York")]:
         assert 0 <= fitscore.score(r) <= 10

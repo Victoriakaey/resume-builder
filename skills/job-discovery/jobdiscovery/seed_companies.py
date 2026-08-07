@@ -19,6 +19,15 @@ PATTERNS = [
 ]
 
 
+# Path segments that sit where a company slug would but are part of the ATS's own
+# routing. `boards.greenhouse.io/embed/job_app?token=...` is the live one: 51 URLs
+# in the SimplifyJobs listings take that shape, and reading "embed" as the company
+# collapsed Chewy, Squarepoint and Cerebras onto a single bogus board. Returning
+# None costs one unresolvable lead; guessing costs a dedup key that merges
+# unrelated employers.
+NON_TOKENS = {"embed", "job_app", "jobs", "job"}
+
+
 def board_from_url(url: str) -> tuple[str, str] | None:
     if not url:
         return None
@@ -27,7 +36,8 @@ def board_from_url(url: str) -> tuple[str, str] | None:
     segments = [s for s in parts.path.split("/") if s]
     for ats, host_re, index in PATTERNS:
         if host_re.match(host) and len(segments) >= index:
-            return ats, segments[index - 1].lower()
+            token = segments[index - 1].lower()
+            return None if token in NON_TOKENS else (ats, token)
     return None
 
 

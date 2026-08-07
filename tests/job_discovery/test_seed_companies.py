@@ -11,6 +11,10 @@ from jobdiscovery import seed_companies as sc
     ("https://jobs.ashbyhq.com/gamma/9d0e-uuid/application", ("ashby", "gamma")),
     ("https://gamma.com/careers/123", None),
     ("", None),
+    # The ATS's own routing sitting where a company slug would. Reading "embed" as
+    # a company merged three unrelated employers onto one board.
+    ("https://boards.greenhouse.io/embed/job_app?token=4012345", None),
+    ("https://boards.greenhouse.io/jobs/4012345", None),
 ])
 def test_board_from_url(url, expected):
     assert sc.board_from_url(url) == expected

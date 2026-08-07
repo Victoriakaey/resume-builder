@@ -30,7 +30,12 @@ def explain(role) -> dict[str, int]:
         # same role differently depending on how its location happens to be
         # written. The Lever posting whose location says "San Francisco, CA /
         # Remote" while the board says hybrid is exactly that role.
-        "location": LOCATION_POINTS if role.work_mode != "Remote" else 0,
+        # A stated Hybrid or On-site earns the point. Remote does not, and neither
+        # does an unknown — a role from a discovery source carries work_mode="" until
+        # the ATS gate replaces it, and "not Remote" would have handed every one of
+        # those a free point for a fact nobody had established yet. Same rule as
+        # freshness: no signal, no credit.
+        "location": LOCATION_POINTS if role.work_mode in ("Hybrid", "On-site") else 0,
         "entry_level": ENTRY_POINTS if any(
             k in blob for k in ("new grad", "entry level", "early career", "university")
         ) else 0,
