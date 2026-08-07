@@ -1,0 +1,54 @@
+#!/usr/bin/env python3
+"""The SimplifyJobs New-Grad-Positions repo as a discovery source.
+
+Discovery and verification are separate jobs here. This source suggests roles;
+it never establishes when one was posted, so everything it produces carries no
+timestamp and reaches the ATS verification gate like any other lead. Where its
+listing points at a known ATS, the board token is extracted so that gate can
+actually run.
+"""
+from __future__ import annotations
+import json, pathlib, subprocess
+from jobdiscovery import ats
+from jobdiscovery.seed_companies import board_from_url
+
+REPO = "https://github.com/SimplifyJobs/New-Grad-Positions.git"
+# Confirmed against a fresh clone (2026-08-07): the repo still keeps its
+# machine-readable listings exactly where the brief guessed.
+LISTINGS_PATH = ".github/scripts/listings.json"
+
+
+def fetch(cache_dir: pathlib.Path) -> list[dict]:
+    cache_dir = pathlib.Path(cache_dir)
+    clone = cache_dir / "New-Grad-Positions"
+    if clone.exists():
+        subprocess.run(["git", "-C", str(clone), "pull", "--ff-only", "--quiet"], check=True)
+    else:
+        cache_dir.mkdir(parents=True, exist_ok=True)
+        subprocess.run(["git", "clone", "--depth", "1", "--quiet", REPO, str(clone)], check=True)
+    listings = clone / LISTINGS_PATH
+    if not listings.exists():
+        raise FileNotFoundError(
+            f"{listings} not found — the repo moved its machine-readable listings. "
+            "Re-locate it and update LISTINGS_PATH."
+        )
+    return json.loads(listings.read_text())
+
+
+def to_roles(listings: list[dict]) -> list[ats.Role]:
+    roles: list[ats.Role] = []
+    for item in listings:
+        url = str(item.get("url") or "")
+        board = board_from_url(url)
+        ats_name, token = board if board else ("", "")
+        locations = item.get("locations") or []
+        roles.append(ats.Role(
+            company=str(item.get("company_name") or ""),
+            title=str(item.get("title") or ""),
+            location=", ".join(locations) if isinstance(locations, list) else str(locations),
+            work_mode="", url=url, job_id=str(item.get("id") or ""),
+            ats=ats_name, token=token,
+            posted_at=None, posted_kind="unknown",
+            description="", source="simplify",
+        ))
+    return roles
