@@ -1,11 +1,18 @@
 #!/usr/bin/env python3
 """The SimplifyJobs New-Grad-Positions repo as a discovery source.
 
-Discovery and verification are separate jobs here. This source suggests roles;
-it never establishes when one was posted, so everything it produces carries no
-timestamp and reaches the ATS verification gate like any other lead. Where its
-listing points at a known ATS, the board token is extracted so that gate can
-actually run.
+Discovery and verification are separate jobs here. This source suggests roles; it
+never establishes when one was posted, so every role it produces carries
+posted_at=None. That is the whole of its standing in the pipeline: freshness
+excludes it from the window, it is never counted toward a run's yield, and its
+file is written under unverified/ rather than roles/, where Step 3 reaches it
+only with --include-unverified.
+
+There is no ATS verification gate. Nothing re-probes a lead's board, and this
+docstring used to claim otherwise. Where a listing points at a known ATS the
+board token and the ATS's own job id are read out of the URL — not so a gate can
+run, but so dedup can recognise the same posting arriving from the board API,
+and so a human can add the board to companies.yaml if they want it verified.
 """
 from __future__ import annotations
 import json, pathlib, subprocess
@@ -45,6 +52,21 @@ def fetch(cache_dir: pathlib.Path) -> list[dict]:
     return data
 
 
+# `active` and `is_visible` are deliberately not read, and this is the note that
+# keeps that from being re-litigated as an oversight. Both fields are present on
+# every listing, and the whole-branch review is right that a false `active` looks
+# like a closed posting being served as a lead. But over the recorded fixture the
+# two flags partition perfectly by who contributed the row — every "Simplify"
+# entry is active=False/is_visible=True and every bot-contributed entry is
+# active=True/is_visible=False, 16 and 4 of 20 — so filtering on `active` would
+# drop four fifths of the file, filtering on `is_visible` would drop the rest,
+# and filtering on both would leave nothing at all. That is not what a single
+# authoritative "this posting is open" flag looks like.
+#
+# Guessing which reading is right is exactly the move the rest of this system
+# refuses to make (ats.py never falls back to "now"; _work_mode never coerces an
+# unrecognised value). Settle it by reading the repo's own writer for these
+# fields, not by picking the flag that leaves a comfortable number of leads.
 def to_roles(listings: list[dict]) -> list[ats.Role]:
     roles: list[ats.Role] = []
     for item in listings:
