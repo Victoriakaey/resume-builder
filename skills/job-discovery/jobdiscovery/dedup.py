@@ -86,8 +86,13 @@ class Index:
         url = canonical_url(role.url)
         if url:
             self.by_url.setdefault(url, row_number)
-        ats_id = f"{role.ats}:{role.token}:{role.job_id}".lower()
-        self.by_ats_id.setdefault(ats_id, row_number)
+        # No id, no key. An unresolved job_id makes the composite collapse to
+        # "ats:token:", which every id-less posting at that company shares — and
+        # the second one would then be dropped as a duplicate of the first,
+        # skipping the location safeguard the weaker keys are required to honour.
+        if role.job_id:
+            ats_id = f"{role.ats}:{role.token}:{role.job_id}".lower()
+            self.by_ats_id.setdefault(ats_id, row_number)
         self.by_title.setdefault(title_key(role.company, role.title),
                                  (row_number, location_key(role.location)))
 
@@ -95,9 +100,10 @@ class Index:
         url = canonical_url(role.url)
         if url in self.by_url:
             return Decision("drop", "url", self.by_url[url])
-        ats_id = f"{role.ats}:{role.token}:{role.job_id}".lower()
-        if ats_id in self.by_ats_id:
-            return Decision("drop", "ats_id", self.by_ats_id[ats_id])
+        if role.job_id:
+            ats_id = f"{role.ats}:{role.token}:{role.job_id}".lower()
+            if ats_id in self.by_ats_id:
+                return Decision("drop", "ats_id", self.by_ats_id[ats_id])
         if role.job_id and role.job_id.lower() in self.by_ats_id:
             return Decision("drop", "ats_id", self.by_ats_id[role.job_id.lower()])
         key = title_key(role.company, role.title)

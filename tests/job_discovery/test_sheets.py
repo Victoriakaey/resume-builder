@@ -100,7 +100,12 @@ def test_read_tracker_counts_the_raw_read_before_dropping_blank_rows(tmp_path):
 
     If the completeness check ran on the filtered count instead, this payload
     would raise IncompleteReadError (2 real rows < 3 expected) instead of
-    returning 2 rows cleanly — that's the behaviour this test pins."""
+    returning 2 rows cleanly — that's the behaviour this test pins.
+
+    The blank row sits between the two real ones (sheet row 6 of firstDataRow=5),
+    so a stamp computed by enumerating the *filtered* list would read 5, 6 — a
+    consecutive count that happens to look plausible. The real sheet rows are
+    5 and 7. Only stamping before the filter runs gets this right."""
     payload = {
         "ok": True,
         "rows": [
@@ -116,6 +121,8 @@ def test_read_tracker_counts_the_raw_read_before_dropping_blank_rows(tmp_path):
     assert len(rows) == 2
     assert rows[0]["B"] == "https://x/1"
     assert rows[1]["B"] == "https://x/2"
+    assert rows[0][sheets.ROW_NUMBER] == 5
+    assert rows[1][sheets.ROW_NUMBER] == 7
 
 
 def test_append_rows_with_empty_list_returns_zero_without_calling_the_endpoint(tmp_path):

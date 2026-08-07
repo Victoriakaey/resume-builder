@@ -43,6 +43,31 @@ def test_a_requisition_id_in_column_l_is_a_dedup_key():
     assert decision.matched_row == 7
 
 
+def test_a_bare_requisition_id_is_also_a_dedup_key():
+    """Column L holds whatever the tracker's author typed. A raw id matches on its
+    own, which is a different branch from the ats:token:id composite above."""
+    index = dedup.Index.from_rows([
+        row("https://elsewhere.example/1", title="Something Else",
+            requisition="12345", row_number=11),
+    ])
+    decision = index.check(role(url="https://boards.greenhouse.io/acme/jobs/12345",
+                                job_id="12345", title="Something Else Entirely"))
+    assert decision.action == "drop" and decision.key == "ats_id"
+    assert decision.matched_row == 11
+
+
+def test_two_id_less_postings_at_one_company_are_not_the_same_role():
+    """An unresolved job_id collapses the composite key to "ats:token:", which every
+    id-less posting at that company would share. Dropping the second one would lose
+    a real opening — the failure this module exists to prevent."""
+    index = dedup.Index.from_rows([])
+    first = role(url="https://boards.greenhouse.io/acme/jobs/a", job_id="", title="Role One")
+    second = role(url="https://boards.greenhouse.io/acme/jobs/b", job_id="", title="Role Two")
+    assert index.check(first).action == "new"
+    index.remember(first)
+    assert index.check(second).action == "new"
+
+
 @pytest.mark.parametrize("variant", [
     "https://boards.greenhouse.io/acme/jobs/1?gh_src=abc123",
     "https://boards.greenhouse.io/acme/jobs/1/",
