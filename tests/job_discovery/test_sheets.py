@@ -125,6 +125,21 @@ def test_read_tracker_counts_the_raw_read_before_dropping_blank_rows(tmp_path):
     assert rows[1][sheets.ROW_NUMBER] == 7
 
 
+def test_read_tracker_requires_the_sheets_own_claim_of_completeness(tmp_path):
+    """If the endpoint's response omits its own claim about the sheet's extent
+    (lastRow), the read must fail loudly rather than silently treating the
+    missing claim as already satisfied. firstDataRow is present so that only
+    the lastRow claim is under test here."""
+    payload = {
+        "ok": True,
+        "rows": [["Discovered", "https://x/1"] + [""] * 16],
+        "firstDataRow": 1,
+    }
+    client = sheets.TrackerClient(_credentials(tmp_path), session=_FakeSession(payload))
+    with pytest.raises(KeyError):
+        client.read_tracker()
+
+
 def test_append_rows_with_empty_list_returns_zero_without_calling_the_endpoint(tmp_path):
     session = _FakeSession({"ok": True, "appended": 99})
     client = sheets.TrackerClient(_credentials(tmp_path), session=session)
