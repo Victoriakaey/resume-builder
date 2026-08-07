@@ -62,6 +62,16 @@ FIELDS: dict[str, dict[str, Any]] = {
 # a silent "On-site".
 WORKPLACE = {"onsite": "On-site", "on-site": "On-site", "hybrid": "Hybrid", "remote": "Remote"}
 
+# Each board's public listings endpoint, keyed by the same ats name used in
+# FIELDS above. Verified 2026-08-07 against a real token for each (Figma,
+# Alembic, Canvas Medical from the seeded companies.yaml): all three returned
+# HTTP 200.
+ENDPOINTS = {
+    "greenhouse": "https://boards-api.greenhouse.io/v1/boards/{token}/jobs?content=true",
+    "ashby": "https://api.ashbyhq.com/posting-api/job-board/{token}",
+    "lever": "https://api.lever.co/v0/postings/{token}?mode=json",
+}
+
 
 def _dig(obj: Any, path: str) -> Any:
     if not path:
