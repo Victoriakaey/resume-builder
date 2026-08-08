@@ -1,39 +1,41 @@
 # RESUME — resume-builder skill
 
-**Moment:** 2026-08-08, mid-session, on branch `feat/anti-ai-rubric` (cut from `main`, `job-discovery`
-already merged). The skill's last open item — the critic had no rubric, `SKILL.md` marked it OPEN and
-a mutation test enforced that marker — is being closed now that the owner supplied her seven
-anti-AI-writing criteria verbatim. Landing: the rubric section in `SKILL.md` (seven criteria, 0/1/2
-per-criterion scoring, 0–14 total, **lower = more human**, criterion 5 judged against `dossier.md` +
-`application-answers.md`), the matching `want` lines in `test_job_discovery_skill.sh`, the matching
-`mutate_doc` cases in `test_mutation.sh`, and the direction flip in `test_critic_separation.md` (the
-old text said "lowest human score must exceed highest AI-sounding score" — backwards under the new
-scoring; corrected to "highest human score must be below lowest AI-sounding score").
+**Moment:** 2026-08-08, on branch `feat/anti-ai-rubric` (cut from `main`, `job-discovery` already
+merged). The skill's last open item — the critic had no rubric, `SKILL.md` marked it OPEN and a
+mutation test enforced that marker — is closed: the owner's seven anti-AI-writing criteria verbatim
+are landed in `SKILL.md` (seven criteria, 0/1/2 per-criterion scoring, 0–14 total, **lower = more
+human**, criterion 5 judged against `dossier.md` + `application-answers.md`), with matching `want`
+lines in `test_job_discovery_skill.sh`, matching `mutate_doc` cases in `test_mutation.sh`, and the
+direction flip in `test_critic_separation.md` (the old text said "lowest human score must exceed
+highest AI-sounding score" — backwards under the new scoring; corrected to "highest human score must
+be below lowest AI-sounding score"). A follow-up review then found and fixed two gaps in that guarding:
+the criterion-5 `want`/`mutate_doc` pair matched an unrelated duplicate phrase elsewhere in `SKILL.md`
+and stayed green even with criterion 5's list item deleted (now anchored to the list-item line only),
+and the "critic emits all seven sub-scores" rule had no guard at all (now has a `want` line and a
+`mutate_doc` case).
 
-> snapshot: HEAD `bda8f8a` (branch tip before this session's edits) · branch `feat/anti-ai-rubric` ·
-> working tree edits in progress on `skills/job-discovery/SKILL.md`, not yet committed
+> snapshot: HEAD at this session's commit · branch `feat/anti-ai-rubric` · tree clean, committed
 
 ## Next concrete action
 
-Finish writing the new `want` lines in `tests/test_job_discovery_skill.sh` (seven per-criterion checks
-+ scale + total/direction + emits-sub-scores + criterion-5-evidence, replacing the two OPEN/do-not-invent
-lines), add the matching `mutate_doc` cases to `tests/job_discovery/test_mutation.sh` (one per new `want`
-line, replacing the two stale ones targeting the deleted OPEN marker and do-not-invent rule), prove each
-new guard goes red on a **copy** of `SKILL.md` before wiring it into the real mutation harness, apply the
-direction flip + prerequisite deletion in `test_critic_separation.md`, then run the full pytest suite +
-all four shell suites and commit (`scripts/check_no_personal.sh` on the staged files first).
+Build the two letter fixtures `test_critic_separation.md` calls for — six AI-generated letters and six
+of the account holder's own, one per `##` heading in each file, stripped of every company name and
+personal detail before they land in this public repo — then run the critic separation test itself
+(shuffle the twelve into one unlabelled list, score each with no other context, and confirm the highest
+human score sits below the lowest AI-sounding score under the lower-is-more-human scoring). Neither step
+is done yet.
 
 ## Shipped previously (this branch, through Task 12 / commit `a9b372f`)
 
 `skills/job-discovery/` — `discover.py`, `dedup.py`, `freshness.py`, `writing_ledger.py`, `ledger.py`,
 `sheets.py`, `append.py`, `SKILL.md`. 145 pytest tests + 4 shell suites (`test_check_no_personal.sh`,
 `test_job_application_skill.sh`, `test_job_discovery_skill.sh`, `test_mutation.sh`) all green. The
-mutation harness proves 15 protected rules (8 code + 7 doc) actually fail the suite when broken — no
-holes. Symlinked into `~/.claude/skills/job-discovery`. README now has a `## Subskills` line pointing
-at it. The seven anti-AI critic criteria arrived this session (see Moment above) and the OPEN marker
-is being retired; the two letter fixtures for `test_critic_separation.md` are still not built —
-`test_critic_separation.md` says what they need (six letters each, one per `##` heading, stripped of
-company names and personal detail) but building them is not this session's job either.
+mutation harness proved 15 protected rules (8 code + 7 doc) actually fail the suite when broken — no
+holes, at that commit. Symlinked into `~/.claude/skills/job-discovery`. README now has a `## Subskills`
+line pointing at it. The seven anti-AI critic criteria landed on top of that (see Moment above),
+retiring the old OPEN marker and adding a `want`/`mutate_doc` pair per criterion plus the scale, total,
+sub-scores, and criterion-5-evidence rules — 26 protected rules total as of this session's commit
+(8 code + 18 doc), with no known holes.
 
 The `--cli` migration in `scripts/cold_read.py` (older work, `main` branch) is also finished and
 committed. `CLI_SHAPES` is wired through `ask_cold_reader()` and a `--cli` argparse option threads
