@@ -101,17 +101,27 @@ Draft, then critique, then revise. Three rules that are not negotiable:
 - **Score each criterion separately, reason before concluding, and let the
   pass/fail come from the scores** — never from a bare judgement.
 
-## The critic's rubric — OPEN, not yet supplied
+## The critic's rubric
 
-The seven anti-AI-writing criteria this loop is supposed to score against are
-**not yet recorded**. Their original text lives outside both repositories and is
-awaiting the owner.
+Score every draft against these seven criteria, in the owner's own words:
 
-**Do not invent them.** Until they land, score against the two published
-references — `references/cover-letter.md` ("Don't write one that screams 'an LLM
-wrote this'") and `references/writer-critic-workflow.md` (its AI-tells pass) —
-and say plainly in the audit section that the rubric was the fallback, not the
-seven criteria.
+1. sentences that could have been written by almost anyone
+2. generic summaries or unnecessary conclusions
+3. places where my uncertainty was polished away
+4. inflated language
+5. claims not present in my original notes
+6. overly symmetrical or formulaic structure
+7. phrases that sound like LinkedIn/AI writing
+
+**Score each criterion 0, 1, or 2** — 0 not triggered, 1 slight, 2 clear — and
+sum the seven into a total of **0–14. A lower total means more human-sounding.**
+The critic emits all seven sub-scores, not just the total, so it is visible
+which criterion cost the points.
+
+**Criterion 5** ("claims not present in my original notes") is judged against `docs/dossier.md` and `docs/application-answers.md`:
+does any claim in this letter lack a basis in those two files? This is the
+same boundary the evidence rule above already draws, so the two cannot
+disagree.
 
 ## Recording what a run cost
 
